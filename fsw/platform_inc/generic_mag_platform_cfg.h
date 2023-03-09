@@ -18,8 +18,8 @@
     /* Notes: 
     **   NOS3 uart requires matching handle and bus number
     */
-    #define GENERIC_MAG_CFG_STRING           "usart_29"
-    #define GENERIC_MAG_CFG_HANDLE           29 
+    #define GENERIC_MAG_CFG_STRING           "usart_7"
+    #define GENERIC_MAG_CFG_HANDLE           7
     #define GENERIC_MAG_CFG_BAUDRATE_HZ      115200
     #define GENERIC_MAG_CFG_MS_TIMEOUT       50            /* Max 255 */
     /* Note: Debug flag disabled (commented out) by default */

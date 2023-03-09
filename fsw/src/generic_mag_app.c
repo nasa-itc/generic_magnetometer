@@ -155,7 +155,7 @@ int32 GENERIC_MAG_AppInit(void)
     /*
     ** Create the Software Bus command pipe 
     */
-    status = CFE_SB_CreatePipe(&GENERIC_MAG_AppData.CmdPipe, GENERIC_MAG_PIPE_DEPTH, "GENERIC_MAG_CMD_PIPE");
+    status = CFE_SB_CreatePipe(&GENERIC_MAG_AppData.CmdPipe, GENERIC_MAG_PIPE_DEPTH, "MAG_CMD_PIPE");
     if (status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(GENERIC_MAG_PIPE_ERR_EID, CFE_EVS_ERROR,

@@ -30,7 +30,7 @@ add_library(generic_mag_sim SHARED ${generic_mag_sim_src} ${generic_mag_sim_inc}
 target_link_libraries(generic_mag_sim ${generic_mag_sim_libs})
 install(TARGETS generic_mag_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
-add_executable(nos3-generic_mag-simulator src/generic_mag_sim.cpp)
-target_link_libraries(nos3-generic_mag-simulator generic_mag_sim ${generic_mag_sim_libs})
-install(TARGETS nos3-generic_mag-simulator RUNTIME DESTINATION bin)
+add_executable(nos3-generic-mag-simulator src/generic_mag_sim.cpp)
+target_link_libraries(nos3-generic-mag-simulator generic_mag_sim ${generic_mag_sim_libs})
+install(TARGETS nos3-generic-mag-simulator RUNTIME DESTINATION bin)
 install(TARGETS generic_mag_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

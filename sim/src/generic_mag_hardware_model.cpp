@@ -19,8 +19,8 @@ namespace Nos3
 
         /* Get on a protocol bus */
         /* Note: Initialized defaults in case value not found in config file */
-        std::string bus_name = "usart_29";
-        int node_port = 29;
+        std::string bus_name = "usart_7";
+        int node_port = 7;
         if (config.get_child_optional("simulator.hardware-model.connections")) 
         {
             /* Loop through the connections for hardware model */
