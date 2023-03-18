@@ -16,12 +16,16 @@
 */
 #ifndef GENERIC_MAG_CFG
     /* Notes: 
-    **   NOS3 uart requires matching handle and bus number
+    **   NOS3 spi requires matching handle and bus number
     */
-    #define GENERIC_MAG_CFG_STRING           "usart_7"
-    #define GENERIC_MAG_CFG_HANDLE           7
-    #define GENERIC_MAG_CFG_BAUDRATE_HZ      115200
-    #define GENERIC_MAG_CFG_MS_TIMEOUT       50            /* Max 255 */
+    #define GENERIC_MAG_CFG_STRING           "spi_1"
+    #define GENERIC_MAG_CFG_HANDLE           1
+    #define GENERIC_MAG_CFG_DELAY            32       /* SPI transaction delay, in microseconds */
+    #define GENERIC_MAG_CFG_BAUD             1000000
+    #define GENERIC_MAG_CFG_SPI_MODE         1
+    #define GENERIC_MAG_CFG_BITS_PER_WORD    8
+    #define GENERIC_MAG_CFG_BUS              0
+    #define GENERIC_MAG_CFG_CS               2
     /* Note: Debug flag disabled (commented out) by default */
     //#define GENERIC_MAG_CFG_DEBUG
 #endif

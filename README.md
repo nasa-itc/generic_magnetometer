@@ -3,55 +3,30 @@ This repository contains the NOS3 Generic_mag Component.
 This includes flight software (FSW), ground software (GSW), simulation, and support directories.
 
 ## Overview
-This generic_mag component is a UART device that accepts multiple commands, including requests for telemetry and data.
-The available FSW is for use in the core Flight System (cFS) while the GSW supports COSMOS.
+This generic_mag component is an SPI device that accepts multiple commands including requests for telemetry. 
+The available FSW is for use in the core Flight System (cFS) while the GSw supports COSMOS.
 A NOS3 simulation is available which includes both generic_mag and 42 data providers.
-
 
 # Device Communications
 The protocol, commands, and responses of the component are captured below.
 
 ## Protocol
-The protocol in use is UART 115200 8N1.
-The device is speak when spoken too.
-All communications with the device require / contain a header of 0xDEAD and a trailer of 0xBEEF.
+The protocol in use is Serial Peripheral Interface (SPI). The generic_mag is slave to the SPI master bus on the spacecraft and operates on chip select 2.
 
 ## Commands
-All commands received by the device are echoed back to the sender to confirm receipt.
-Should commmands involve a reply, the device immediately sends the reply after the command echo.
-Device commands are all formatted in the same manner and are fixed in size:
-* uint16, 0xDEAD
-* uint8, command identifier
-  - (0) Get Housekeeping
-  - (1) Get Generic_mag
-  - (2) Set Configuration
-* uint32, command payload
-  - Unused for all but set configuration command
-* uint16, 0xBEEF
+There are no commands for the generic_mag beyond the basic app commands available to all NOS3 components.
 
 ## Response
 Response formats are as follows:
-* Housekeeping
-  - uint16, 0xDEAD
-  - uint32, Command Counter
-    * Increments for each command received
-  - uint32, Configuration
-    * Internal configuration number in use by the device
-  - uint32, Status
-    * Self reported status of the component where zero is completely healthy and each bit represents different errors
-    * No means to clear / set status except for a power cycle to the device
-  - uint16, 0xBEEF
 * Generic_mag
   - uint16, 0xDEAD
-  - uint32, Command Counter
-    * Increments for each command received
+  - uint16, 0xBEEF
   - uint16, Data X
     * X component of generic_mag data
   - uint16, Data Y
-    * X component of generic_mag data
+    * Y component of generic_mag data
   - uint16, Data Z
-    * X component of generic_mag data
-  - uint16, 0xBEEF
+    * Z component of generic_mag data
 
 
 # Configuration
@@ -62,7 +37,7 @@ Refer to the file [fsw/platform_inc/generic_mag_platform_cfg.h](fsw/platform_inc
 configuration settings, as well as a summary on overriding parameters in mission-specific repositories.
 
 ## Simulation
-The default configuration returns data that is X * 0.001, Y * 0.002, and Z * 0.003 the request count after conversions:
+The default configuration returns data that is X * 0.001, Y * 0.001, and Z * 0.001 the request count after conversions:
 ```
 <simulator>
     <name>generic_mag_sim</name>
@@ -73,16 +48,22 @@ The default configuration returns data that is X * 0.001, Y * 0.002, and Z * 0.0
         <connections>
             <connection><type>command</type>
                 <bus-name>command</bus-name>
-                <node-name>generic_mag-sim-command-node</node-name>
-            </connection>
-            <connection><type>usart</type>
-                <bus-name>usart_29</bus-name>
-                <node-port>29</node-port>
+                <node-name>mag-command</node-name>
             </connection>
         </connections>
         <data-provider>
             <type>GENERIC_MAG_PROVIDER</type>
+            <hostname>localhost</hostname>
+            <port>4234</port>
+            <command-port>4235</command-port>
+            <max-connection-attempts>5</max-connection-attempts>
+            <retry-wait-seconds>5</retry-wait-seconds>
+            <spacecraft>0</spacecraft>
         </data-provider>
+        <spi>
+            <bus>spi_1</bus>
+            <chip_select>2</chip_select>
+        </spi>
     </hardware-model>
 </simulator>
 ```
@@ -91,9 +72,10 @@ The default configuration returns data that is X * 0.001, Y * 0.002, and Z * 0.0
 Optionally the 42 data provider can be configured in the `nos3-simulator.xml`:
 ```
         <data-provider>
-            <type>GENERIC_MAG_42_PROVIDER</type>
+            <type>GENERIC_MAG_PROVIDER</type>
             <hostname>localhost</hostname>
-            <port>4242</port>
+            <port>4234</port>
+            <command-port>4235</command-port>
             <max-connection-attempts>5</max-connection-attempts>
             <retry-wait-seconds>5</retry-wait-seconds>
             <spacecraft>0</spacecraft>

@@ -43,10 +43,7 @@
 #define GENERIC_MAG_REQ_DATA_ERR_EID          32
 
 /* Hardware protocol event IDs */
-#define GENERIC_MAG_UART_INIT_ERR_EID         40
-#define GENERIC_MAG_UART_CLOSE_ERR_EID        41
-#define GENERIC_MAG_UART_READ_ERR_EID         42
-#define GENERIC_MAG_UART_WRITE_ERR_EID        43
-#define GENERIC_MAG_UART_TIMEOUT_ERR_EID      44
+#define GENERIC_MAG_SPI_INIT_ERR_EID          40
+#define GENERIC_MAG_SPI_READ_ERR_EID          41
 
 #endif /* _GENERIC_MAG_EVENTS_H_ */

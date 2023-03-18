@@ -10,7 +10,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <Client/Bus.hpp>
-#include <Uart/Client/Uart.hpp> /* TODO: Change if your protocol bus is different (e.g. SPI, I2C, etc.) */
+#include <Spi/Client/SpiSlave.hpp>
 
 #include <sim_i_data_provider.hpp>
 #include <generic_mag_data_point.hpp>
@@ -36,25 +36,31 @@ namespace Nos3
         /* Constructor and destructor */
         Generic_magHardwareModel(const boost::property_tree::ptree& config);
         ~Generic_magHardwareModel(void);
+        void create_generic_mag_data(std::vector<uint8_t>& out_data); 
 
     private:
         /* Private helper methods */
-        void create_generic_mag_hk(std::vector<uint8_t>& out_data); 
-        void create_generic_mag_data(std::vector<uint8_t>& out_data); 
-        void uart_read_callback(const uint8_t *buf, size_t len); /* Handle data the hardware receives from its protocol bus */
         void command_callback(NosEngine::Common::Message msg); /* Handle backdoor commands and time tick to the simulator */
 
         /* Private data members */
-        std::unique_ptr<NosEngine::Uart::Uart>              _uart_connection; /* TODO: Change if your protocol bus is different (e.g. SPI, I2C, etc.) */
+        class SpiSlaveConnection*                           _spi_slave_connection;
         std::unique_ptr<NosEngine::Client::Bus>             _time_bus; /* Standard */
 
         SimIDataProvider*                                   _generic_mag_dp; /* Only needed if the sim has a data provider */
 
         /* Internal state data */
         std::uint8_t                                        _enabled;
-        std::uint32_t                                       _count;
-        std::uint32_t                                       _config;
-        std::uint32_t                                       _status;
+    };
+
+    class SpiSlaveConnection : public NosEngine::Spi::SpiSlave
+    {
+    public:
+        SpiSlaveConnection(Generic_magHardwareModel* mag, int chip_select, std::string connection_string, std::string bus_name);
+        size_t spi_read(uint8_t *rbuf, size_t rlen);
+        size_t spi_write(const uint8_t *wbuf, size_t wlen);
+    private:
+        Generic_magHardwareModel*  _mag;
+        std::vector<uint8_t>       _spi_out_data;
     };
 }
 
