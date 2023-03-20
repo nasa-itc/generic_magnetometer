@@ -37,7 +37,7 @@ namespace Nos3
             }
         }
         _spi_slave_connection = new SpiSlaveConnection(this, chip_select, connection_string, bus_name);
-        sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  Now on SPI bus name %s, port %d.", bus_name.c_str(), chip_select);
+        sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  Now on SPI bus name %s, chip select %d.", bus_name.c_str(), chip_select);
     
         /* Get on the command bus*/
         std::string time_bus_name = "command";
@@ -91,7 +91,7 @@ namespace Nos3
         boost::to_upper(command);
         if (command.compare(0, 4, "HELP") == 0) 
         {
-            response = "Generic_magHardwareModel::command_callback: Valid commands are HELP, ENABLE, DISABLE, STATUS=X, or STOP";
+            response = "Generic_magHardwareModel::command_callback: Valid commands are HELP, ENABLE, DISABLE, or STOP";
         }
         else if (command.compare(0, 6, "ENABLE") == 0) 
         {
@@ -150,7 +150,9 @@ namespace Nos3
         _mag = mag;
     }
 
-    size_t SpiSlaveConnection::spi_read(uint8_t *rbuf, size_t rlen) {
+    size_t SpiSlaveConnection::spi_read(uint8_t *rbuf, size_t rlen) 
+    {
+        _mag->create_generic_mag_data(_spi_out_data);
         sim_logger->debug("spi_read: %s", SimIHardwareModel::uint8_vector_to_hex_string(_spi_out_data).c_str()); // log data
 
         if (_spi_out_data.size() < rlen) rlen = _spi_out_data.size();

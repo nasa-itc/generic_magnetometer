@@ -36,7 +36,8 @@ namespace Nos3
         ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
         */
         std::ostringstream MatchString;
-        MatchString << "SC[" << spacecraft << "].MAG";
+        //MatchString << "SC[" << spacecraft << "].MAG";
+        MatchString << "SC[" << spacecraft << "].bvn";
         size_t MSsize = MatchString.str().size();
 
         /* Parse 42 telemetry */
@@ -55,14 +56,17 @@ namespace Nos3
                     size_t lb = lines[i].find_first_of("[", MSsize);
                     size_t rb = lines[i].find_first_of("]", MSsize);
                     int index = std::stoi(lines[i].substr(lb+1, rb-lb-1));
-                    if ((index >= 0) && (index < numMagnetometers)) {
-                        std::string param(lines[i].substr(rb+2, 5)); // check for "Valid"
-                        std::string param2(lines[i].substr(rb+2, 4)); // check for "Axis"
-                        std::string axisString(lines[i].substr(rb+2,std::string::npos));
+                    if ((index >= 0) && (index < 3)) { //number of axes = 3
+                        //std::string param(lines[i].substr(rb+2, 5)); // check for "Valid"
+                        //std::string param2(lines[i].substr(rb+2, 4)); // check for "Axis"
+                        //std::string axisString(lines[i].substr(rb+2,std::string::npos));
                         size_t equal = lines[i].find_first_of("=");
-                        size_t lb2 = axisString.find_first_of("[");
-                        size_t rb2 = axisString.find_first_of("]");
+                        //size_t lb2 = axisString.find_first_of("[");
+                        //size_t rb2 = axisString.find_first_of("]");
                         std::string value(lines[i].substr(equal+1, lines[i].size()-equal-1));
+                        _generic_mag_data[index] = std::stof(value);
+                        sim_logger->debug("  mag[%d] stof(value) = %f ", index, std::stof(value));
+                        /*
                         if (param.compare("Valid") == 0)  // "Valid" line
                         {
                             int flag = std::stoi(value);
@@ -78,13 +82,10 @@ namespace Nos3
                             }
                         } else if (param2.compare("Axis") == 0) // "Axis" line
                         {
-                            int axis = std::stoi(lines[i].substr(lb2+1, rb2-lb2-1));
-                            _generic_mag_data[axis] = std::stof(value);
-                            /* Debugging print
-                            sim_logger->debug("  mag[%d] stof(value) = %f ", index, std::stof(value));
-                            sim_logger->debug("  mag[%d] stof(value) / scaleFactor = %f ", index, std::stof(value) / scaleFactor);
-                            */
+                            //int axis = std::stoi(lines[i].substr(lb2+1, rb2-lb2-1));
+                            //_generic_mag_data[axis] = std::stof(value);
                         }
+                        */
                     }
                 }
             }
