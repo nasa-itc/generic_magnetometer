@@ -13,7 +13,7 @@ namespace Nos3
         sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  NOS Engine connection string: %s.", connection_string.c_str());
 
         /* Get a data provider */
-        std::string dp_name = config.get("simulator.hardware-model.data-provider.type", "GENERIC_MAG_PROVIDER");
+        std::string dp_name = config.get("simulator.hardware-model.data-provider.type", "GENERIC_MAG_42_PROVIDER");
         _generic_mag_dp = SimDataProviderFactory::Instance().Create(dp_name, config);
         sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  Data provider %s created.", dp_name.c_str());
 
@@ -103,12 +103,11 @@ namespace Nos3
             _enabled = GENERIC_MAG_SIM_ERROR;
             response = "Generic_magHardwareModel::command_callback:  Disabled";
         }
-        else if (command.compare("STOP") == 0) 
+        else if (command.compare(0, 4, "STOP") == 0) 
         {
             _keep_running = false;
             response = "Generic_magHardwareModel::command_callback:  Stopping";
         }
-        /* TODO: Add anything additional commands here */
 
         /* Send a reply */
         sim_logger->info("Generic_magHardwareModel::command_callback:  Sending reply: %s.", response.c_str());

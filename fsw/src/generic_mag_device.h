@@ -18,7 +18,6 @@
 
 /*
 ** Type definitions
-** TODO: Make specific to your application
 */
 
 #define GENERIC_MAG_DEVICE_HDR_0            0xDE

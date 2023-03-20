@@ -15,7 +15,6 @@
 
 /*
 ** Ground Command Codes
-** TODO: Add additional commands required by the specific component
 */
 #define GENERIC_MAG_NOOP_CC                 0
 #define GENERIC_MAG_RESET_COUNTERS_CC       1
@@ -25,7 +24,6 @@
 
 /* 
 ** Telemetry Request Command Codes
-** TODO: Add additional commands required by the specific component
 */
 #define GENERIC_MAG_REQ_HK_TLM              0
 #define GENERIC_MAG_REQ_DATA_TLM            1

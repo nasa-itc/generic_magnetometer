@@ -55,7 +55,6 @@ The default configuration returns data that is X * 0.001, Y * 0.001, and Z * 0.0
             <type>GENERIC_MAG_PROVIDER</type>
             <hostname>localhost</hostname>
             <port>4234</port>
-            <command-port>4235</command-port>
             <max-connection-attempts>5</max-connection-attempts>
             <retry-wait-seconds>5</retry-wait-seconds>
             <spacecraft>0</spacecraft>
@@ -72,10 +71,9 @@ The default configuration returns data that is X * 0.001, Y * 0.001, and Z * 0.0
 Optionally the 42 data provider can be configured in the `nos3-simulator.xml`:
 ```
         <data-provider>
-            <type>GENERIC_MAG_PROVIDER</type>
+            <type>GENERIC_MAG_42_PROVIDER</type>
             <hostname>localhost</hostname>
             <port>4234</port>
-            <command-port>4235</command-port>
             <max-connection-attempts>5</max-connection-attempts>
             <retry-wait-seconds>5</retry-wait-seconds>
             <spacecraft>0</spacecraft>

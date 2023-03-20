@@ -38,8 +38,8 @@ static CFE_EVS_BinFilter_t  GENERIC_MAG_EventFilters[] =
     {GENERIC_MAG_DEVICE_TLM_ERR_EID,     0x0000},
     {GENERIC_MAG_REQ_HK_ERR_EID,         0x0000},
     {GENERIC_MAG_REQ_DATA_ERR_EID,       0x0000},
-    {GENERIC_MAG_SPI_INIT_ERR_EID,      0x0000},
-    {GENERIC_MAG_SPI_READ_ERR_EID,      0x0000},
+    {GENERIC_MAG_SPI_INIT_ERR_EID,       0x0000},
+    {GENERIC_MAG_SPI_READ_ERR_EID,       0x0000},
     /* TODO: Add additional event IDs (EID) to the table as created */
 };
 
@@ -280,7 +280,6 @@ void GENERIC_MAG_ProcessCommandPacket(void)
 
 /*
 ** Process ground commands
-** TODO: Add additional commands required by the specific component
 */
 void GENERIC_MAG_ProcessGroundCommand(void)
 {
@@ -363,7 +362,6 @@ void GENERIC_MAG_ProcessGroundCommand(void)
 
 /*
 ** Process Telemetry Request - Triggered in response to a telemetery request
-** TODO: Add additional telemetry required by the specific component
 */
 void GENERIC_MAG_ProcessTelemetryRequest(void)
 {
@@ -459,7 +457,6 @@ void GENERIC_MAG_ResetCounters(void)
 
 /*
 ** Enable Component
-** TODO: Edit for your specific component implementation
 */
 void GENERIC_MAG_Enable(void)
 {
@@ -493,7 +490,6 @@ void GENERIC_MAG_Enable(void)
 
 /*
 ** Disable Component
-** TODO: Edit for your specific component implementation
 */
 void GENERIC_MAG_Disable(void)
 {

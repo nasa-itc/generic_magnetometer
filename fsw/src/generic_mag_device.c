@@ -16,7 +16,7 @@
 */
 int32_t GENERIC_MAG_RequestData(spi_info_t *device, GENERIC_MAG_Device_Data_tlm_t* data)
 {
-    int32_t status = OS_SUCCESS;
+    int32_t status = OS_ERROR;
     uint8_t read_data[GENERIC_MAG_DEVICE_DATA_SIZE];
     uint8_t write_data[GENERIC_MAG_DEVICE_DATA_SIZE];
 
