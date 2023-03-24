@@ -19,7 +19,7 @@ namespace Nos3
 
         /* Get on a protocol bus */
         /* Note: Initialized defaults in case value not found in config file */
-        std::string bus_name = "spi_1";
+        std::string bus_name = "spi_2";
         int chip_select = 2;
         if (config.get_child_optional("simulator.hardware-model.connections")) 
         {
@@ -133,12 +133,12 @@ namespace Nos3
         sim_logger->debug("Generic_magHardwareModel::create_generic_mag_data:  Creating data, enabled=%d", _enabled);
         if (_enabled == GENERIC_MAG_SIM_SUCCESS) 
         {
-            out_data[4] = ((uint16_t) magValues[0] & 0xFF00) >> 8;
-            out_data[5] = ((uint16_t) magValues[0] & 0x00FF);
-            out_data[6] = ((uint16_t) magValues[1] & 0xFF00) >> 8;
-            out_data[7] = ((uint16_t) magValues[1] & 0x00FF);
-            out_data[8] = ((uint16_t) magValues[2] & 0xFF00) >> 8;
-            out_data[9] = ((uint16_t) magValues[2] & 0x00FF);
+            out_data[4] = ((uint16_t) (magValues[0] * _nano_conversion) & 0xFF00) >> 8;
+            out_data[5] = ((uint16_t) (magValues[0] * _nano_conversion) & 0x00FF);
+            out_data[6] = ((uint16_t) (magValues[1] * _nano_conversion) & 0xFF00) >> 8;
+            out_data[7] = ((uint16_t) (magValues[1] * _nano_conversion) & 0x00FF);
+            out_data[8] = ((uint16_t) (magValues[2] * _nano_conversion) & 0xFF00) >> 8;
+            out_data[9] = ((uint16_t) (magValues[2] * _nano_conversion) & 0x00FF);
         }
     }
 

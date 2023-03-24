@@ -50,6 +50,7 @@ namespace Nos3
 
         /* Internal state data */
         std::uint8_t                                        _enabled;
+        const float                                         _nano_conversion = 1000000000;
     };
 
     class SpiSlaveConnection : public NosEngine::Spi::SpiSlave

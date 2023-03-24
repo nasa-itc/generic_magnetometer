@@ -18,7 +18,7 @@
     /* Notes: 
     **   NOS3 spi requires matching handle and bus number
     */
-    #define GENERIC_MAG_CFG_STRING           "spi_1"
+    #define GENERIC_MAG_CFG_STRING           "spi_2"
     #define GENERIC_MAG_CFG_HANDLE           2
     #define GENERIC_MAG_CFG_DELAY            32       /* SPI transaction delay, in microseconds */
     #define GENERIC_MAG_CFG_BAUD             1000000

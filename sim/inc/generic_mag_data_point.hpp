@@ -28,7 +28,7 @@ namespace Nos3
         /* Specific data you need to get from the data provider to the hardware model */
         /* You only get to this data through the accessors above */
         std::vector<float> _generic_mag_data;
-        static const int numMagnetometers = 1;
+        static const int numAxes = 3;
     };
 }
 

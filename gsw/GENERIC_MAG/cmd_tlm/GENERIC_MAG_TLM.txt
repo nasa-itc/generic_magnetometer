@@ -19,6 +19,6 @@ TELEMETRY GENERIC_MAG GENERIC_MAG_DATA_TLM LITTLE_ENDIAN "GENERIC_MAG_Device_tlm
   APPEND_ITEM    CCSDS_SECONDS        32 UINT         "CCSDS Telemetry Secondary Header (seconds)"
   APPEND_ITEM    CCSDS_SUBSECS        16 UINT         "CCSDS Telemetry Secondary Header (subseconds)"
   # GENERIC_MAG_Device_Data_tlm_t
-  APPEND_ITEM    RAW_MAG_X            16 UINT         "Raw mag data x component (0-65535)"
-  APPEND_ITEM    RAW_MAG_Y            16 UINT         "Raw mag data y component (0-65535)"
-  APPEND_ITEM    RAW_MAG_Z            16 UINT         "Raw mag data z component (0-65535)"
+  APPEND_ITEM    RAW_MAG_X            16 UINT         "Raw mag data x component (0-65535) (nano Teslas)"
+  APPEND_ITEM    RAW_MAG_Y            16 UINT         "Raw mag data y component (0-65535) (nano Teslas)"
+  APPEND_ITEM    RAW_MAG_Z            16 UINT         "Raw mag data z component (0-65535) (nano Teslas)"

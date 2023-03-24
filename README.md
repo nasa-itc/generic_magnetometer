@@ -50,19 +50,19 @@ The default configuration returns data that is X * 0.001, Y * 0.001, and Z * 0.0
                 <bus-name>command</bus-name>
                 <node-name>mag-command</node-name>
             </connection>
+            <connection><type>spi</type>
+                <bus-name>spi_2</bus-name>
+                <chip-select>2</chip-select>
+            </connection>
         </connections>
         <data-provider>
-            <type>GENERIC_MAG_PROVIDER</type>
+            <type>GENERIC_MAG_42_PROVIDER</type>
             <hostname>localhost</hostname>
             <port>4234</port>
             <max-connection-attempts>5</max-connection-attempts>
             <retry-wait-seconds>5</retry-wait-seconds>
             <spacecraft>0</spacecraft>
         </data-provider>
-        <spi>
-            <bus>spi_1</bus>
-            <chip_select>2</chip_select>
-        </spi>
     </hardware-model>
 </simulator>
 ```
