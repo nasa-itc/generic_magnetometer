@@ -115,14 +115,14 @@ namespace Nos3
     }
 
     /* Custom function to prepare the Generic_mag Data */
-    void Generic_magHardwareModel::create_generic_mag_data(std::vector<uint8_t>& out_data)
+    void Generic_magHardwareModel::prepare_generic_mag_data_from_42(std::vector<uint8_t>& out_data)
     {
         boost::shared_ptr<Generic_magDataPoint> data_point = boost::dynamic_pointer_cast<Generic_magDataPoint>(_generic_mag_dp->get_data_point());
         std::vector<float> magValues = data_point->getValues();
 
         /* Prepare data size */
         out_data.clear();
-        out_data.resize(10, 0x00);
+        out_data.resize(16, 0x00);
 
         /* Streaming data header - 0xDEAD */
         out_data[0] = 0xDE;
@@ -130,15 +130,28 @@ namespace Nos3
         out_data[2] = 0xBE;
         out_data[3] = 0xEF;
 
-        sim_logger->debug("Generic_magHardwareModel::create_generic_mag_data:  Creating data, enabled=%d", _enabled);
+        sim_logger->debug("Generic_magHardwareModel::prepare_generic_mag_data_from_42:  Creating data, enabled=%d", _enabled);
         if (_enabled == GENERIC_MAG_SIM_SUCCESS) 
         {
-            out_data[4] = ((uint16_t) (magValues[0] * _nano_conversion) & 0xFF00) >> 8;
-            out_data[5] = ((uint16_t) (magValues[0] * _nano_conversion) & 0x00FF);
-            out_data[6] = ((uint16_t) (magValues[1] * _nano_conversion) & 0xFF00) >> 8;
-            out_data[7] = ((uint16_t) (magValues[1] * _nano_conversion) & 0x00FF);
-            out_data[8] = ((uint16_t) (magValues[2] * _nano_conversion) & 0xFF00) >> 8;
-            out_data[9] = ((uint16_t) (magValues[2] * _nano_conversion) & 0x00FF);
+            out_data[4] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0xFF000000) >> 24;
+            out_data[5] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x00FF0000) >> 16;
+            out_data[6] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x0000FF00) >> 8;
+            out_data[7] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x000000FF);
+            out_data[8] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0xFF000000) >> 24;
+            out_data[9] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x00FF0000) >> 16;
+            out_data[10] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x0000FF00) >> 8;
+            out_data[11] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x000000FF);
+            out_data[12] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0xFF000000) >> 24;
+            out_data[13] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x00FF0000) >> 16;
+            out_data[14] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x0000FF00) >> 8;
+            out_data[15] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x000000FF);
+            /*
+            sim_logger->debug("Generic_magHardwareModel::prepare_generic_mag_data_from_42:  Creating data, data is below\nout_data[0]=0x%02x\tout_data[1]=0x%02x\tout_data[2]=0x%02x\tout_data[3]=0x%02x\nout_data[4]=0x%02x\tout_data[5]=0x%02x\tout_data[6]=0x%02x\tout_data[7]=0x%02x\nout_data[8]=0x%02x\tout_data[9]=0x%02x\tout_data[10]=0x%02x\tout_data[11]=0x%02x\nout_data[12]=0x%02x\tout_data[13]=0x%02x\tout_data[14]=0x%02x\tout_data[15]=0x%02x\n",
+                out_data[0], out_data[1], out_data[2], out_data[3], 
+                out_data[4], out_data[5], out_data[6], out_data[7], 
+                out_data[8], out_data[9], out_data[10], out_data[11], 
+                out_data[12], out_data[13], out_data[14], out_data[15]);
+            */
         }
     }
 
@@ -151,7 +164,7 @@ namespace Nos3
 
     size_t SpiSlaveConnection::spi_read(uint8_t *rbuf, size_t rlen) 
     {
-        _mag->create_generic_mag_data(_spi_out_data);
+        _mag->prepare_generic_mag_data_from_42(_spi_out_data);
         sim_logger->debug("spi_read: %s", SimIHardwareModel::uint8_vector_to_hex_string(_spi_out_data).c_str()); // log data
 
         if (_spi_out_data.size() < rlen) rlen = _spi_out_data.size();

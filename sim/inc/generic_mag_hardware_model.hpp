@@ -36,7 +36,7 @@ namespace Nos3
         /* Constructor and destructor */
         Generic_magHardwareModel(const boost::property_tree::ptree& config);
         ~Generic_magHardwareModel(void);
-        void create_generic_mag_data(std::vector<uint8_t>& out_data); 
+        void prepare_generic_mag_data_from_42(std::vector<uint8_t>& out_data); 
 
     private:
         /* Private helper methods */
@@ -51,6 +51,8 @@ namespace Nos3
         /* Internal state data */
         std::uint8_t                                        _enabled;
         const float                                         _nano_conversion = 1000000000;
+        const float                                         _mag_conv = 21474;
+        const float                                         _mag_range = 100000;
     };
 
     class SpiSlaveConnection : public NosEngine::Spi::SpiSlave

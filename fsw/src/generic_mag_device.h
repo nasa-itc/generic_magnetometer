@@ -26,15 +26,18 @@
 #define GENERIC_MAG_DEVICE_HDR_3            0xEF
 #define GENERIC_MAG_DEVICE_HDR_LEN          4
 
+//#define MAG_CONV_CONST                      21474
+//#define MAG_RANGE                           100000
+
 /*
 ** GENERIC_MAG device data telemetry definition
 */
 typedef struct
 {
-    uint16_t  MagneticIntensityX;
-    uint16_t  MagneticIntensityY;
-    uint16_t  MagneticIntensityZ;
-
+    uint32_t  MagneticIntensityX;
+    uint32_t  MagneticIntensityY;
+    uint32_t  MagneticIntensityZ;
+    
 } OS_PACK GENERIC_MAG_Device_Data_tlm_t;
 #define GENERIC_MAG_DEVICE_DATA_LNGTH sizeof ( GENERIC_MAG_Device_Data_tlm_t )
 #define GENERIC_MAG_DEVICE_DATA_SIZE GENERIC_MAG_DEVICE_DATA_LNGTH + GENERIC_MAG_DEVICE_HDR_LEN

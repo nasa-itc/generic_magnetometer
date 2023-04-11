@@ -19,6 +19,9 @@ int32_t GENERIC_MAG_RequestData(spi_info_t *device, GENERIC_MAG_Device_Data_tlm_
     int32_t status = OS_ERROR;
     uint8_t read_data[GENERIC_MAG_DEVICE_DATA_SIZE];
     uint8_t write_data[GENERIC_MAG_DEVICE_DATA_SIZE];
+    uint32_t mag_x_tmp;
+    uint32_t mag_y_tmp;
+    uint32_t mag_z_tmp;
 
     /* Read data */
     if ((spi_select_chip(device) == SPI_SUCCESS) &&
@@ -42,14 +45,22 @@ int32_t GENERIC_MAG_RequestData(spi_info_t *device, GENERIC_MAG_Device_Data_tlm_
             (read_data[2]  == GENERIC_MAG_DEVICE_HDR_2) && 
             (read_data[3]  == GENERIC_MAG_DEVICE_HDR_3))
         {
-            data->MagneticIntensityX = (read_data[4] << 8) | read_data[5];
-            data->MagneticIntensityY = (read_data[6] << 8) | read_data[7];
-            data->MagneticIntensityZ = (read_data[8] << 8) | read_data[9];
+            data->MagneticIntensityX = (read_data[4] << 24) | (read_data[5] << 16) | (read_data[6] << 8) | (read_data[7]);
+            data->MagneticIntensityY = (read_data[8] << 24) | (read_data[9] << 16) | (read_data[10] << 8) | (read_data[11]);
+            data->MagneticIntensityZ = (read_data[12] << 24) | (read_data[13] << 16) | (read_data[14] << 8) | (read_data[15]);
+            
+            //mag_x_tmp = (read_data[4] << 24) | (read_data[5] << 16) | (read_data[6] << 8) | (read_data[7]);
+            //mag_y_tmp = (read_data[8] << 24) | (read_data[9] << 16) | (read_data[10] << 8) | (read_data[11]);
+            //mag_z_tmp = (read_data[12] << 24) | (read_data[13] << 16) | (read_data[14] << 8) | (read_data[15]);
+
+            //data->MagneticIntensityX = ((mag_x_tmp - (MAG_CONV_CONST*MAG_RANGE)) / MAG_CONV_CONST);
+            //data->MagneticIntensityY = ((mag_y_tmp - (MAG_CONV_CONST*MAG_RANGE)) / MAG_CONV_CONST);
+            //data->MagneticIntensityZ = ((mag_z_tmp - (MAG_CONV_CONST*MAG_RANGE)) / MAG_CONV_CONST);
 
             #ifdef GENERIC_MAG_CFG_DEBUG
-                OS_printf("  Magnetic Field Intensity X  = 0x%04x, %d  \n", data->MagneticIntensityX, data->MagneticIntensityX);
-                OS_printf("  Magnetic Field Intensity Y  = 0x%04x, %d  \n", data->MagneticIntensityY, data->MagneticIntensityY);
-                OS_printf("  Magnetic Field Intensity Z  = 0x%04x, %d  \n", data->MagneticIntensityZ, data->MagneticIntensityZ);
+                OS_printf("  Magnetic Field Intensity X = 0x%08x, %d\n", data->MagneticIntensityX, data->MagneticIntensityX);
+                OS_printf("  Magnetic Field Intensity Y = 0x%08x, %d\n", data->MagneticIntensityY, data->MagneticIntensityY);
+                OS_printf("  Magnetic Field Intensity Z = 0x%08x, %d\n", data->MagneticIntensityZ, data->MagneticIntensityZ);
             #endif
         }
     } 
