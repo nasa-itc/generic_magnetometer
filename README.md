@@ -21,11 +21,11 @@ Response formats are as follows:
 * Generic_mag
   - uint16, 0xDEAD
   - uint16, 0xBEEF
-  - uint32, Data X
+  - int32, Data X
     * X component of generic_mag data
-  - uint32, Data Y
+  - int32, Data Y
     * Y component of generic_mag data
-  - uint32, Data Z
+  - int32, Data Z
     * Z component of generic_mag data
 
 
