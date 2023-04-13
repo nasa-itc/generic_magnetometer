@@ -130,7 +130,7 @@ namespace Nos3
         out_data[2] = 0xBE;
         out_data[3] = 0xEF;
 
-        sim_logger->debug("Generic_magHardwareModel::prepare_generic_mag_data_from_42:  Creating data, enabled=%d", _enabled);
+        /* sim_logger->debug("Generic_magHardwareModel::prepare_generic_mag_data_from_42:  Creating data, enabled=%d", _enabled); */
         if (_enabled == GENERIC_MAG_SIM_SUCCESS) 
         {
             out_data[4] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0xFF000000) >> 24;

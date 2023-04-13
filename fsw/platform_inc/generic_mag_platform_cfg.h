@@ -27,7 +27,7 @@
     #define GENERIC_MAG_CFG_BUS              0
     #define GENERIC_MAG_CFG_CS               2
     /* Note: Debug flag disabled (commented out) by default */
-    #define GENERIC_MAG_CFG_DEBUG            1
+    //#define GENERIC_MAG_CFG_DEBUG            1
 #endif
 
 #endif /* _GENERIC_MAG_PLATFORM_CFG_H_ */

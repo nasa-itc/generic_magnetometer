@@ -45,16 +45,9 @@ int32_t GENERIC_MAG_RequestData(spi_info_t *device, GENERIC_MAG_Device_Data_tlm_
             (read_data[2]  == GENERIC_MAG_DEVICE_HDR_2) && 
             (read_data[3]  == GENERIC_MAG_DEVICE_HDR_3))
         {
-            /*
-            data->MagneticIntensityX = (read_data[4] << 24) | (read_data[5] << 16) | (read_data[6] << 8) | (read_data[7]);
-            data->MagneticIntensityY = (read_data[8] << 24) | (read_data[9] << 16) | (read_data[10] << 8) | (read_data[11]);
-            data->MagneticIntensityZ = (read_data[12] << 24) | (read_data[13] << 16) | (read_data[14] << 8) | (read_data[15]);
-            */
-            
             mag_x_packet = (read_data[4] << 24) | (read_data[5] << 16) | (read_data[6] << 8) | (read_data[7]);
             mag_y_packet = (read_data[8] << 24) | (read_data[9] << 16) | (read_data[10] << 8) | (read_data[11]);
             mag_z_packet = (read_data[12] << 24) | (read_data[13] << 16) | (read_data[14] << 8) | (read_data[15]);
-
 
             data->MagneticIntensityX = ((((int32_t) mag_x_packet)-(MAG_CONV_CONST*MAG_RANGE))/(MAG_CONV_CONST));
             data->MagneticIntensityY = ((((int32_t) mag_y_packet)-(MAG_CONV_CONST*MAG_RANGE))/(MAG_CONV_CONST));

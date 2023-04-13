@@ -28,7 +28,6 @@
 
 #define MAG_CONV_CONST                      21474
 #define MAG_RANGE                           100000
-#define NANO_CONVERSION                     1000000000
 
 /*
 ** GENERIC_MAG device data telemetry definition
