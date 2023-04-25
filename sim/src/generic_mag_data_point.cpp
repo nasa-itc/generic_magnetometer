@@ -5,25 +5,11 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_magDataPoint::Generic_magDataPoint(double count)
-    {
-        sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  Defined Constructor executed");
-
-        /* Do calculations based on provided data */
-        std::vector<bool> valid(3, true);
-        std::vector<float> axes(3, 0.0);
-        _generic_mag_data = axes;
-        _generic_mag_data[0] = count * 0.001;
-        _generic_mag_data[1] = count * 0.001;
-        _generic_mag_data[2] = count * 0.001;
-    }
-
     Generic_magDataPoint::Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
     {
         sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  42 Constructor executed");
 
         /* Initialize data */
-        std::vector<bool> valid(3, false);
         std::vector<float> axes(3, 0.0);
         _generic_mag_data = axes;
         _generic_mag_data[0] = 0.0;
@@ -58,18 +44,7 @@ namespace Nos3
                         std::string param(lines[i].substr(rb+2, 5));
                         size_t equal = lines[i].find_first_of("=");
                         std::string value(lines[i].substr(equal+1, lines[i].size()-equal-1));
-                        if (param.compare("Valid") == 0) 
-                        {
-                            int flag = std::stoi(value);
-                            if (flag != 0) 
-                            {
-                                valid[index] = true;
-                            } else 
-                            {
-                                valid[index] = false;
-                                _generic_mag_data[index] = 0.0;
-                            }
-                        } else if (param.compare("Field") == 0) 
+                        if (param.compare("Field") == 0) 
                         {
                             _generic_mag_data[index] = std::stof(value);
                             // Debugging print
@@ -82,7 +57,7 @@ namespace Nos3
         catch(const std::exception& e) 
         {
             /* Force data to be set to known values */
-            std::vector<float> axes(3, 5.0);
+            std::vector<float> axes(3, 0.0);
             _generic_mag_data = axes; 
             sim_logger->error("Generic_magDataPoint::Generic_magDataPoint:  Parsing exception %s", e.what());
         }
@@ -93,7 +68,7 @@ namespace Nos3
     {
         sim_logger->trace("Generic_magDataPoint::to_string:  Executed");
         std::stringstream output;
-        output << "Channel values: ";
+        output << "Magnetometer values: ";
         int i;
         for (i = 0; i < _generic_mag_data.size(); i++) {
             output << _generic_mag_data[i];

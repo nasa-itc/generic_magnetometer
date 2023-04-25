@@ -5,7 +5,7 @@ This includes flight software (FSW), ground software (GSW), simulation, and supp
 ## Overview
 This generic_mag component is an SPI device that accepts multiple commands including requests for telemetry. 
 The available FSW is for use in the core Flight System (cFS) while the GSw supports COSMOS.
-A NOS3 simulation is available which includes both generic_mag and 42 data providers.
+A NOS3 simulation is available which includes a 42 data provider.
 
 # Device Communications
 The protocol, commands, and responses of the component are captured below.
@@ -37,7 +37,6 @@ Refer to the file [fsw/platform_inc/generic_mag_platform_cfg.h](fsw/platform_inc
 configuration settings, as well as a summary on overriding parameters in mission-specific repositories.
 
 ## Simulation
-The default configuration returns data that is X * 0.001, Y * 0.001, and Z * 0.001 the request count after conversions:
 ```
 <simulator>
     <name>generic_mag_sim</name>

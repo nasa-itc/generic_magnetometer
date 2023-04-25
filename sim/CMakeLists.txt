@@ -11,7 +11,6 @@ include_directories(inc
 set(generic_mag_sim_src
     src/generic_mag_hardware_model.cpp
     src/generic_mag_42_data_provider.cpp
-    src/generic_mag_data_provider.cpp
     src/generic_mag_data_point.cpp
 )
 

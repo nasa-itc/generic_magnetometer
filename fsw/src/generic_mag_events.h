@@ -30,14 +30,8 @@
 #define GENERIC_MAG_DISABLE_INF_EID           17
 #define GENERIC_MAG_DISABLE_ERR_EID           18
 
-/* Device specific command event IDs */
-#define GENERIC_MAG_CMD_CONFIG_INF_EID        20
-#define GENERIC_MAG_CONFIG_INF_EID            21
-#define GENERIC_MAG_CONFIG_ERR_EID            22
-
 /* Standard telemetry event IDs */
 #define GENERIC_MAG_DEVICE_TLM_ERR_EID        30
-#define GENERIC_MAG_REQ_HK_ERR_EID            31
 
 /* Device specific telemetry event IDs */
 #define GENERIC_MAG_REQ_DATA_ERR_EID          32
