@@ -66,7 +66,7 @@ typedef struct
     ** Device protocol
     ** TODO: Make specific to your application
     */ 
-    uart_info_t Generic_magUart;             /* Hardware protocol definition */
+    spi_info_t Generic_magSpi;             /* Hardware protocol definition */
 
 } GENERIC_MAG_AppData_t;
 

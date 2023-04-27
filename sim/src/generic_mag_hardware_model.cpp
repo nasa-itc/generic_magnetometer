@@ -6,43 +6,39 @@ namespace Nos3
 
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_magHardwareModel::Generic_magHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), _enabled(0), _count(0), _config(0), _status(0)
+    Generic_magHardwareModel::Generic_magHardwareModel(const boost::property_tree::ptree& config) : SimIHardwareModel(config), _enabled(0)
     {
         /* Get the NOS engine connection string */
         std::string connection_string = config.get("common.nos-connection-string", "tcp://127.0.0.1:12001"); 
         sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  NOS Engine connection string: %s.", connection_string.c_str());
 
         /* Get a data provider */
-        std::string dp_name = config.get("simulator.hardware-model.data-provider.type", "GENERIC_MAG_PROVIDER");
+        std::string dp_name = config.get("simulator.hardware-model.data-provider.type", "GENERIC_MAG_42_PROVIDER");
         _generic_mag_dp = SimDataProviderFactory::Instance().Create(dp_name, config);
         sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  Data provider %s created.", dp_name.c_str());
 
         /* Get on a protocol bus */
         /* Note: Initialized defaults in case value not found in config file */
-        std::string bus_name = "usart_29";
-        int node_port = 29;
+        std::string bus_name = "spi_2";
+        int chip_select = 2;
         if (config.get_child_optional("simulator.hardware-model.connections")) 
         {
             /* Loop through the connections for hardware model */
             BOOST_FOREACH(const boost::property_tree::ptree::value_type &v, config.get_child("simulator.hardware-model.connections"))
             {
                 /* v.second is the child tree (v.first is the name of the child) */
-                if (v.second.get("type", "").compare("usart") == 0)
+                if (v.second.get("type", "").compare("spi") == 0)
                 {
                     /* Configuration found */
                     bus_name = v.second.get("bus-name", bus_name);
-                    node_port = v.second.get("node-port", node_port);
+                    chip_select = v.second.get("chip-select", chip_select);
                     break;
                 }
             }
         }
-        _uart_connection.reset(new NosEngine::Uart::Uart(_hub, config.get("simulator.name", "generic_mag_sim"), connection_string, bus_name));
-        _uart_connection->open(node_port);
-        sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  Now on UART bus name %s, port %d.", bus_name.c_str(), node_port);
+        _spi_slave_connection = new SpiSlaveConnection(this, chip_select, connection_string, bus_name);
+        sim_logger->info("Generic_magHardwareModel::Generic_magHardwareModel:  Now on SPI bus name %s, chip select %d.", bus_name.c_str(), chip_select);
     
-        /* Configure protocol callback */
-        _uart_connection->set_read_callback(std::bind(&Generic_magHardwareModel::uart_read_callback, this, std::placeholders::_1, std::placeholders::_2));
-
         /* Get on the command bus*/
         std::string time_bus_name = "command";
         if (config.get_child_optional("hardware-model.connections")) 
@@ -71,7 +67,8 @@ namespace Nos3
     Generic_magHardwareModel::~Generic_magHardwareModel(void)
     {        
         /* Close the protocol bus */
-        _uart_connection->close();
+        delete _spi_slave_connection;
+        _spi_slave_connection = nullptr;
 
         /* Clean up the data provider */
         delete _generic_mag_dp;
@@ -92,231 +89,97 @@ namespace Nos3
         std::string command = dbf.data;
         std::string response = "Generic_magHardwareModel::command_callback:  INVALID COMMAND! (Try HELP)";
         boost::to_upper(command);
-        if (command.compare("HELP") == 0) 
+        if (command.compare(0, 4, "HELP") == 0) 
         {
-            response = "Generic_magHardwareModel::command_callback: Valid commands are HELP, ENABLE, DISABLE, STATUS=X, or STOP";
+            response = "Generic_magHardwareModel::command_callback: Valid commands are HELP, ENABLE, DISABLE, or STOP";
         }
-        else if (command.compare("ENABLE") == 0) 
+        else if (command.compare(0, 6, "ENABLE") == 0) 
         {
             _enabled = GENERIC_MAG_SIM_SUCCESS;
             response = "Generic_magHardwareModel::command_callback:  Enabled";
         }
-        else if (command.compare("DISABLE") == 0) 
+        else if (command.compare(0, 7, "DISABLE") == 0) 
         {
             _enabled = GENERIC_MAG_SIM_ERROR;
-            _count = 0;
-            _config = 0;
-            _status = 0;
             response = "Generic_magHardwareModel::command_callback:  Disabled";
         }
-        else if (command.substr(0,7).compare("STATUS=") == 0)
-        {
-            try
-            {
-                _status = std::stod(command.substr(7));
-                response = "Generic_magHardwareModel::command_callback:  Status set";
-            }
-            catch (...)
-            {
-                response = "Generic_magHardwareModel::command_callback:  Status invalid";
-            }            
-        }
-        else if (command.compare("STOP") == 0) 
+        else if (command.compare(0, 4, "STOP") == 0) 
         {
             _keep_running = false;
             response = "Generic_magHardwareModel::command_callback:  Stopping";
         }
-        /* TODO: Add anything additional commands here */
 
         /* Send a reply */
         sim_logger->info("Generic_magHardwareModel::command_callback:  Sending reply: %s.", response.c_str());
         _command_node->send_reply_message_async(msg, response.size(), response.c_str());
     }
 
-
-    /* Custom function to prepare the Generic_mag HK telemetry */
-    void Generic_magHardwareModel::create_generic_mag_hk(std::vector<uint8_t>& out_data)
+    /* Custom function to prepare the Generic_mag Data */
+    void Generic_magHardwareModel::prepare_generic_mag_data_from_42(std::vector<uint8_t>& out_data)
     {
+        boost::shared_ptr<Generic_magDataPoint> data_point = boost::dynamic_pointer_cast<Generic_magDataPoint>(_generic_mag_dp->get_data_point());
+        std::vector<float> magValues = data_point->getValues();
+
         /* Prepare data size */
+        out_data.clear();
         out_data.resize(16, 0x00);
 
         /* Streaming data header - 0xDEAD */
         out_data[0] = 0xDE;
         out_data[1] = 0xAD;
-        
-        /* Sequence count */
-        out_data[2] = (_count >> 24) & 0x000000FF; 
-        out_data[3] = (_count >> 16) & 0x000000FF; 
-        out_data[4] = (_count >>  8) & 0x000000FF; 
-        out_data[5] =  _count & 0x000000FF;
-        
-        /* Configuration */
-        out_data[6] = (_config >> 24) & 0x000000FF; 
-        out_data[7] = (_config >> 16) & 0x000000FF; 
-        out_data[8] = (_config >>  8) & 0x000000FF; 
-        out_data[9] =  _config & 0x000000FF;
+        out_data[2] = 0xBE;
+        out_data[3] = 0xEF;
 
-        /* Device Status */
-        out_data[10] = (_status >> 24) & 0x000000FF; 
-        out_data[11] = (_status >> 16) & 0x000000FF; 
-        out_data[12] = (_status >>  8) & 0x000000FF; 
-        out_data[13] =  _status & 0x000000FF;
-
-        /* Streaming data trailer - 0xBEEF */
-        out_data[14] = 0xBE;
-        out_data[15] = 0xEF;
+        /* sim_logger->debug("Generic_magHardwareModel::prepare_generic_mag_data_from_42:  Creating data, enabled=%d", _enabled); */
+        if (_enabled == GENERIC_MAG_SIM_SUCCESS) 
+        {
+            out_data[4] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0xFF000000) >> 24;
+            out_data[5] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x00FF0000) >> 16;
+            out_data[6] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x0000FF00) >> 8;
+            out_data[7] = ((uint32_t) ((magValues[0] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x000000FF);
+            out_data[8] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0xFF000000) >> 24;
+            out_data[9] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x00FF0000) >> 16;
+            out_data[10] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x0000FF00) >> 8;
+            out_data[11] = ((uint32_t) ((magValues[1] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x000000FF);
+            out_data[12] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0xFF000000) >> 24;
+            out_data[13] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x00FF0000) >> 16;
+            out_data[14] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x0000FF00) >> 8;
+            out_data[15] = ((uint32_t) ((magValues[2] * _nano_conversion) * _mag_conv + _mag_conv * _mag_range) & 0x000000FF);
+            /*
+            sim_logger->debug("Generic_magHardwareModel::prepare_generic_mag_data_from_42:  Creating data, data is below\nout_data[0]=0x%02x\tout_data[1]=0x%02x\tout_data[2]=0x%02x\tout_data[3]=0x%02x\nout_data[4]=0x%02x\tout_data[5]=0x%02x\tout_data[6]=0x%02x\tout_data[7]=0x%02x\nout_data[8]=0x%02x\tout_data[9]=0x%02x\tout_data[10]=0x%02x\tout_data[11]=0x%02x\nout_data[12]=0x%02x\tout_data[13]=0x%02x\tout_data[14]=0x%02x\tout_data[15]=0x%02x\n",
+                out_data[0], out_data[1], out_data[2], out_data[3], 
+                out_data[4], out_data[5], out_data[6], out_data[7], 
+                out_data[8], out_data[9], out_data[10], out_data[11], 
+                out_data[12], out_data[13], out_data[14], out_data[15]);
+            */
+        }
     }
 
-
-    /* Custom function to prepare the Generic_mag Data */
-    void Generic_magHardwareModel::create_generic_mag_data(std::vector<uint8_t>& out_data)
+    SpiSlaveConnection::SpiSlaveConnection(Generic_magHardwareModel* mag,
+        int chip_select, std::string connection_string, std::string bus_name)
+        : NosEngine::Spi::SpiSlave(chip_select, connection_string, bus_name)
     {
-        boost::shared_ptr<Generic_magDataPoint> data_point = boost::dynamic_pointer_cast<Generic_magDataPoint>(_generic_mag_dp->get_data_point());
-
-        /* Prepare data size */
-        out_data.resize(14, 0x00);
-
-        /* Streaming data header - 0xDEAD */
-        out_data[0] = 0xDE;
-        out_data[1] = 0xAD;
-        
-        /* Sequence count */
-        out_data[2] = (_count >> 24) & 0x000000FF; 
-        out_data[3] = (_count >> 16) & 0x000000FF; 
-        out_data[4] = (_count >>  8) & 0x000000FF; 
-        out_data[5] =  _count & 0x000000FF;
-        
-        /* 
-        ** Payload 
-        ** 
-        ** Device is big engian (most significant byte first)
-        ** Assuming data is valid regardless of dynamic / environmental data
-        ** Floating poing numbers are extremely problematic 
-        **   (https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html)
-        ** Most hardware transmits some type of unsigned integer (e.g. from an ADC), so that's what we've done
-        ** Scale each of the x, y, z (which are in the range [-1.0, 1.0]) by 32767, 
-        **   and add 32768 so that the result fits in a uint16
-        */
-        uint16_t x   = (uint16_t)(data_point->get_generic_mag_data_x()*32767.0 + 32768.0);
-        out_data[6]  = (x >> 8) & 0x00FF;
-        out_data[7]  =  x       & 0x00FF;
-        uint16_t y   = (uint16_t)(data_point->get_generic_mag_data_y()*32767.0 + 32768.0);
-        out_data[8]  = (y >> 8) & 0x00FF;
-        out_data[9]  =  y       & 0x00FF;
-        uint16_t z   = (uint16_t)(data_point->get_generic_mag_data_z()*32767.0 + 32768.0);
-        out_data[10] = (z >> 8) & 0x00FF;
-        out_data[11] =  z       & 0x00FF;
-
-        /* Streaming data trailer - 0xBEEF */
-        out_data[12] = 0xBE;
-        out_data[13] = 0xEF;
+        _mag = mag;
     }
 
-
-    /* Protocol callback */
-    void Generic_magHardwareModel::uart_read_callback(const uint8_t *buf, size_t len)
+    size_t SpiSlaveConnection::spi_read(uint8_t *rbuf, size_t rlen) 
     {
-        std::vector<uint8_t> out_data; 
-        std::uint8_t valid = GENERIC_MAG_SIM_SUCCESS;
-        
-        std::uint32_t rcv_config;
+        _mag->prepare_generic_mag_data_from_42(_spi_out_data);
+        sim_logger->debug("spi_read: %s", SimIHardwareModel::uint8_vector_to_hex_string(_spi_out_data).c_str()); // log data
 
-        /* Retrieve data and log in man readable format */
-        std::vector<uint8_t> in_data(buf, buf + len);
-        sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  REQUEST %s",
-            SimIHardwareModel::uint8_vector_to_hex_string(in_data).c_str());
+        if (_spi_out_data.size() < rlen) rlen = _spi_out_data.size();
 
-        /* Check simulator is enabled */
-        if (_enabled != GENERIC_MAG_SIM_SUCCESS)
-        {
-            sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Generic_mag sim disabled!");
-            valid = GENERIC_MAG_SIM_ERROR;
+        for (int i = 0; i < rlen; i++) {
+            rbuf[i] = _spi_out_data[i];
         }
-        else
-        {
-            /* Check if message is incorrect size */
-            if (in_data.size() != 9)
-            {
-                sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Invalid command size of %d received!", in_data.size());
-                valid = GENERIC_MAG_SIM_ERROR;
-            }
-            else
-            {
-                /* Check header - 0xDEAD */
-                if ((in_data[0] != 0xDE) || (in_data[1] !=0xAD))
-                {
-                    sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Header incorrect!");
-                    valid = GENERIC_MAG_SIM_ERROR;
-                }
-                else
-                {
-                    /* Check trailer - 0xBEEF */
-                    if ((in_data[7] != 0xBE) || (in_data[8] !=0xEF))
-                    {
-                        sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Trailer incorrect!");
-                        valid = GENERIC_MAG_SIM_ERROR;
-                    }
-                    else
-                    {
-                        /* Increment count as valid command format received */
-                        _count++;
-                    }
-                }
-            }
+        return rlen;
+    }
 
-            if (valid == GENERIC_MAG_SIM_SUCCESS)
-            {   
-                /* Process command */
-                switch (in_data[2])
-                {
-                    case 0:
-                        /* NOOP */
-                        sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  NOOP command received!");
-                        break;
+    size_t SpiSlaveConnection::spi_write(const uint8_t *wbuf, size_t wlen) {
+        std::vector<uint8_t> in_data(wbuf, wbuf + wlen);
+        sim_logger->debug("spi_write: %s", SimIHardwareModel::uint8_vector_to_hex_string(in_data).c_str()); // log data
+        sim_logger->error("MAG sim does not support SPI write!");
+        return wlen;
 
-                case 1:
-                        /* Request HK */
-                        sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Send HK command received!");
-                        create_generic_mag_hk(out_data);
-                        break;
-
-                    case 2:
-                        /* Request data */
-                        sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Send data command received!");
-                        create_generic_mag_data(out_data);
-                        break;
-
-                    case 3:
-                        /* Configuration */
-                        sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Configuration command received!");
-                        _config  = in_data[3] << 24;
-                        _config |= in_data[4] << 16;
-                        _config |= in_data[5] << 8;
-                        _config |= in_data[6];
-                        break;
-                    
-                    default:
-                        /* Unused command code */
-                        valid = GENERIC_MAG_SIM_ERROR;
-                        sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  Unused command %d received!", in_data[2]);
-                        break;
-                }
-            }
-        }
-
-        /* Increment count and echo command since format valid */
-        if (valid == GENERIC_MAG_SIM_SUCCESS)
-        {
-            _count++;
-            _uart_connection->write(&in_data[0], in_data.size());
-
-            /* Send response if existing */
-            if (out_data.size() > 0)
-            {
-                sim_logger->debug("Generic_magHardwareModel::uart_read_callback:  REPLY %s",
-                    SimIHardwareModel::uint8_vector_to_hex_string(out_data).c_str());
-                _uart_connection->write(&out_data[0], out_data.size());
-            }
-        }
     }
 }

@@ -5,23 +5,13 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_magDataPoint::Generic_magDataPoint(double count)
-    {
-        sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  Defined Constructor executed");
-
-        /* Do calculations based on provided data */
-        _generic_mag_data_is_valid = true;
-        _generic_mag_data[0] = count * 0.001;
-        _generic_mag_data[1] = count * 0.002;
-        _generic_mag_data[2] = count * 0.003;
-    }
-
     Generic_magDataPoint::Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
     {
         sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  42 Constructor executed");
 
         /* Initialize data */
-        _generic_mag_data_is_valid = false;
+        std::vector<float> axes(3, 0.0);
+        _generic_mag_data = axes;
         _generic_mag_data[0] = 0.0;
         _generic_mag_data[1] = 0.0;
         _generic_mag_data[2] = 0.0;
@@ -32,7 +22,7 @@ namespace Nos3
         ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
         */
         std::ostringstream MatchString;
-        MatchString << "SC[" << spacecraft << "].svb = "; /* TODO: Change me to match the data from 42 you are interested in */
+        MatchString << "SC[" << spacecraft << "].AC.MAG";
         size_t MSsize = MatchString.str().size();
 
         /* Parse 42 telemetry */
@@ -41,30 +31,34 @@ namespace Nos3
         {
             for (int i = 0; i < lines.size(); i++) 
             {
-                /* Compare prefix */
+                // Debugging print
+                sim_logger->debug("Line[%d] = %s", i, lines[i].c_str());
+
+                // Compare prefix
                 if (lines[i].compare(0, MSsize, MatchString.str()) == 0) 
                 {
-                    size_t found = lines[i].find_first_of("=");
-                    /* Parse line */
-                    std::istringstream iss(lines[i].substr(found+1, lines[i].size()-found-1));
-                    /* Custom work to extract the data from the 42 string and save it off in the member data of this data point */
-                    std::string s;
-                    iss >> s;
-                    _generic_mag_data[0] = std::stod(s);
-                    iss >> s;
-                    _generic_mag_data[1] = std::stod(s);
-                    iss >> s;
-                    _generic_mag_data[2] = std::stod(s);
-                    /* Mark data as valid */
-                    _generic_mag_data_is_valid = true;
-                    /* Debug print */
-                    sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  Parsed svb = %f %f %f", _generic_mag_data[0], _generic_mag_data[1], _generic_mag_data[2]);
+                    size_t lb = lines[i].find_first_of("[", MSsize);
+                    size_t rb = lines[i].find_first_of("]", MSsize);
+                    int index = std::stoi(lines[i].substr(lb+1, rb-lb-1));
+                    if ((index >= 0) && (index < numAxes)) {
+                        std::string param(lines[i].substr(rb+2, 5));
+                        size_t equal = lines[i].find_first_of("=");
+                        std::string value(lines[i].substr(equal+1, lines[i].size()-equal-1));
+                        if (param.compare("Field") == 0) 
+                        {
+                            _generic_mag_data[index] = std::stof(value);
+                            // Debugging print
+                            sim_logger->debug("  mag[%d] stof(value) = %f ", index, std::stof(value));
+                        }
+                    }
                 }
             }
         } 
         catch(const std::exception& e) 
         {
-            /* Report error */
+            /* Force data to be set to known values */
+            std::vector<float> axes(3, 0.0);
+            _generic_mag_data = axes; 
             sim_logger->error("Generic_magDataPoint::Generic_magDataPoint:  Parsing exception %s", e.what());
         }
     }
@@ -73,20 +67,15 @@ namespace Nos3
     std::string Generic_magDataPoint::to_string(void) const
     {
         sim_logger->trace("Generic_magDataPoint::to_string:  Executed");
-        
-        std::stringstream ss;
-
-        ss << std::fixed << std::setfill(' ');
-        ss << "Generic_mag Data Point:   Valid: ";
-        ss << (_generic_mag_data_is_valid ? "Valid" : "INVALID");
-        ss << std::setprecision(std::numeric_limits<double>::digits10); /* Full double precision */
-        ss << " Generic_mag Data: "
-           << _generic_mag_data[0]
-           << " "
-           << _generic_mag_data[1]
-           << " "
-           << _generic_mag_data[2];
-
-        return ss.str();
+        std::stringstream output;
+        output << "Magnetometer values: ";
+        int i;
+        for (i = 0; i < _generic_mag_data.size(); i++) {
+            output << _generic_mag_data[i];
+            if (i < _generic_mag_data.size() - 1) {
+                output << ", ";
+            }
+        }
+        return output.str();
     }
 } /* namespace Nos3 */

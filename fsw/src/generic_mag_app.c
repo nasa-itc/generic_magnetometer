@@ -35,17 +35,10 @@ static CFE_EVS_BinFilter_t  GENERIC_MAG_EventFilters[] =
     {GENERIC_MAG_CMD_DISABLE_INF_EID,    0x0000},
     {GENERIC_MAG_DISABLE_INF_EID,        0x0000},
     {GENERIC_MAG_DISABLE_ERR_EID,        0x0000},
-    {GENERIC_MAG_CMD_CONFIG_INF_EID,     0x0000},
-    {GENERIC_MAG_CONFIG_INF_EID,         0x0000},
-    {GENERIC_MAG_CONFIG_ERR_EID,         0x0000},
     {GENERIC_MAG_DEVICE_TLM_ERR_EID,     0x0000},
-    {GENERIC_MAG_REQ_HK_ERR_EID,         0x0000},
     {GENERIC_MAG_REQ_DATA_ERR_EID,       0x0000},
-    {GENERIC_MAG_UART_INIT_ERR_EID,      0x0000},
-    {GENERIC_MAG_UART_CLOSE_ERR_EID,     0x0000},
-    {GENERIC_MAG_UART_READ_ERR_EID,      0x0000},
-    {GENERIC_MAG_UART_WRITE_ERR_EID,     0x0000},
-    {GENERIC_MAG_UART_TIMEOUT_ERR_EID,   0x0000},
+    {GENERIC_MAG_SPI_INIT_ERR_EID,       0x0000},
+    {GENERIC_MAG_SPI_READ_ERR_EID,       0x0000},
     /* TODO: Add additional event IDs (EID) to the table as created */
 };
 
@@ -155,7 +148,7 @@ int32 GENERIC_MAG_AppInit(void)
     /*
     ** Create the Software Bus command pipe 
     */
-    status = CFE_SB_CreatePipe(&GENERIC_MAG_AppData.CmdPipe, GENERIC_MAG_PIPE_DEPTH, "GENERIC_MAG_CMD_PIPE");
+    status = CFE_SB_CreatePipe(&GENERIC_MAG_AppData.CmdPipe, GENERIC_MAG_PIPE_DEPTH, "MAG_CMD_PIPE");
     if (status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(GENERIC_MAG_PIPE_ERR_EID, CFE_EVS_ERROR,
@@ -223,9 +216,13 @@ int32 GENERIC_MAG_AppInit(void)
     ** Note that counters are excluded as they were reset in the previous code block
     */
     GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_DISABLED;
-    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceHK.DeviceCounter = 0;
-    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceHK.DeviceConfig = 0;
-    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceHK.DeviceStatus = 0;
+    GENERIC_MAG_AppData.Generic_magSpi.deviceString = GENERIC_MAG_CFG_STRING;
+    GENERIC_MAG_AppData.Generic_magSpi.handle = GENERIC_MAG_CFG_HANDLE;
+    GENERIC_MAG_AppData.Generic_magSpi.baudrate = GENERIC_MAG_CFG_BAUD;
+    GENERIC_MAG_AppData.Generic_magSpi.spi_mode = GENERIC_MAG_CFG_SPI_MODE;
+    GENERIC_MAG_AppData.Generic_magSpi.bits_per_word = GENERIC_MAG_CFG_BITS_PER_WORD;
+    GENERIC_MAG_AppData.Generic_magSpi.bus = GENERIC_MAG_CFG_BUS;
+    GENERIC_MAG_AppData.Generic_magSpi.cs = GENERIC_MAG_CFG_CS;
 
     /* 
      ** Send an information event that the app has initialized. 
@@ -282,7 +279,6 @@ void GENERIC_MAG_ProcessCommandPacket(void)
 
 /*
 ** Process ground commands
-** TODO: Add additional commands required by the specific component
 */
 void GENERIC_MAG_ProcessGroundCommand(void)
 {
@@ -350,28 +346,6 @@ void GENERIC_MAG_ProcessGroundCommand(void)
             break;
 
         /*
-        ** TODO: Edit and add more command codes as appropriate for the application
-        ** Set Configuration Command
-        ** Note that this is an example of a command that has additional arguments
-        */
-        case GENERIC_MAG_CONFIG_CC:
-            if (GENERIC_MAG_VerifyCmdLength(GENERIC_MAG_AppData.MsgPtr, sizeof(GENERIC_MAG_Config_cmd_t)) == OS_SUCCESS)
-            {
-                CFE_EVS_SendEvent(GENERIC_MAG_CMD_CONFIG_INF_EID, CFE_EVS_INFORMATION, "GENERIC_MAG: Configuration command received");
-                /* Command device to send HK */
-                status = GENERIC_MAG_CommandDevice(GENERIC_MAG_AppData.Generic_magUart.handle, GENERIC_MAG_DEVICE_CFG_CMD, ((GENERIC_MAG_Config_cmd_t*) GENERIC_MAG_AppData.MsgPtr)->DeviceCfg);
-                if (status == OS_SUCCESS)
-                {
-                    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount++;
-                }
-                else
-                {
-                    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-                }
-            }
-            break;
-
-        /*
         ** Invalid Command Codes
         */
         default:
@@ -387,7 +361,6 @@ void GENERIC_MAG_ProcessGroundCommand(void)
 
 /*
 ** Process Telemetry Request - Triggered in response to a telemetery request
-** TODO: Add additional telemetry required by the specific component
 */
 void GENERIC_MAG_ProcessTelemetryRequest(void)
 {
@@ -429,22 +402,7 @@ void GENERIC_MAG_ReportHousekeeping(void)
 {
     int32 status = OS_SUCCESS;
 
-    /* Check that device is enabled */
-    if (GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_MAG_DEVICE_ENABLED)
-    {
-        status = GENERIC_MAG_RequestHK(GENERIC_MAG_AppData.Generic_magUart.handle, (GENERIC_MAG_Device_HK_tlm_t*) &GENERIC_MAG_AppData.HkTelemetryPkt.DeviceHK);
-        if (status == OS_SUCCESS)
-        {
-            GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount++;
-        }
-        else
-        {
-            GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_REQ_HK_ERR_EID, CFE_EVS_ERROR, 
-                    "GENERIC_MAG: Request device HK reported error %d", status);
-        }
-    }
-    /* Intentionally do not report errors if disabled */
+    /* No HK data to request from device */
 
     /* Time stamp and publish housekeeping telemetry */
     CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &GENERIC_MAG_AppData.HkTelemetryPkt);
@@ -463,7 +421,7 @@ void GENERIC_MAG_ReportDeviceTelemetry(void)
     /* Check that device is enabled */
     if (GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_MAG_DEVICE_ENABLED)
     {
-        status = GENERIC_MAG_RequestData(GENERIC_MAG_AppData.Generic_magUart.handle, (GENERIC_MAG_Device_Data_tlm_t*) &GENERIC_MAG_AppData.DevicePkt.Generic_mag);
+        status = GENERIC_MAG_RequestData(&GENERIC_MAG_AppData.Generic_magSpi, (GENERIC_MAG_Device_Data_tlm_t*) &GENERIC_MAG_AppData.DevicePkt.Generic_mag);
         if (status == OS_SUCCESS)
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount++;
@@ -498,7 +456,6 @@ void GENERIC_MAG_ResetCounters(void)
 
 /*
 ** Enable Component
-** TODO: Edit for your specific component implementation
 */
 void GENERIC_MAG_Enable(void)
 {
@@ -507,19 +464,8 @@ void GENERIC_MAG_Enable(void)
     /* Check that device is disabled */
     if (GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_MAG_DEVICE_DISABLED)
     {
-        /*
-        ** Initialize hardware interface data
-        ** TODO: Make specific to your application depending on protocol in use
-        ** Note that other components provide examples for the different protocols available
-        */ 
-        GENERIC_MAG_AppData.Generic_magUart.deviceString = GENERIC_MAG_CFG_STRING;
-        GENERIC_MAG_AppData.Generic_magUart.handle = GENERIC_MAG_CFG_HANDLE;
-        GENERIC_MAG_AppData.Generic_magUart.isOpen = PORT_CLOSED;
-        GENERIC_MAG_AppData.Generic_magUart.baud = GENERIC_MAG_CFG_BAUDRATE_HZ;
-        GENERIC_MAG_AppData.Generic_magUart.access_option = uart_access_flag_RDWR;
-
         /* Open device specific protocols */
-        status = uart_init_port(&GENERIC_MAG_AppData.Generic_magUart);
+        status = spi_init_dev(&GENERIC_MAG_AppData.Generic_magSpi);
         if (status == OS_SUCCESS)
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount++;
@@ -529,7 +475,7 @@ void GENERIC_MAG_Enable(void)
         else
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_UART_INIT_ERR_EID, CFE_EVS_ERROR, "GENERIC_MAG: UART port initialization error %d", status);
+            CFE_EVS_SendEvent(GENERIC_MAG_SPI_INIT_ERR_EID, CFE_EVS_ERROR, "GENERIC_MAG: SPI port initialization error %d", status);
         }
     }
     else
@@ -543,7 +489,6 @@ void GENERIC_MAG_Enable(void)
 
 /*
 ** Disable Component
-** TODO: Edit for your specific component implementation
 */
 void GENERIC_MAG_Disable(void)
 {
@@ -553,7 +498,7 @@ void GENERIC_MAG_Disable(void)
     if (GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_MAG_DEVICE_ENABLED)
     {
         /* Open device specific protocols */
-        status = uart_close_port(GENERIC_MAG_AppData.Generic_magUart.handle);
+        status = spi_close_device(&GENERIC_MAG_AppData.Generic_magSpi);
         if (status == OS_SUCCESS)
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount++;
@@ -563,7 +508,7 @@ void GENERIC_MAG_Disable(void)
         else
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_UART_CLOSE_ERR_EID, CFE_EVS_ERROR, "GENERIC_MAG: UART port close error %d", status);
+            CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_ERR_EID, CFE_EVS_ERROR, "GENERIC_MAG: SPI port close error %d", status);
         }
     }
     else
