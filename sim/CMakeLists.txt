@@ -28,8 +28,3 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN/../lib") # Pick up .so i
 add_library(generic_mag_sim SHARED ${generic_mag_sim_src} ${generic_mag_sim_inc})
 target_link_libraries(generic_mag_sim ${generic_mag_sim_libs})
 install(TARGETS generic_mag_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
-
-add_executable(nos3-generic-mag-simulator src/generic_mag_sim.cpp)
-target_link_libraries(nos3-generic-mag-simulator generic_mag_sim ${generic_mag_sim_libs})
-install(TARGETS nos3-generic-mag-simulator RUNTIME DESTINATION bin)
-install(TARGETS generic_mag_sim LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
