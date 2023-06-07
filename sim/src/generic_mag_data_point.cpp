@@ -29,7 +29,7 @@ namespace Nos3
         std::vector<std::string> lines = dp->get_lines();
         try 
         {
-            for (int i = 0; i < lines.size(); i++) 
+            for (unsigned int i = 0; i < lines.size(); i++) 
             {
                 // Debugging print
                 sim_logger->debug("Line[%d] = %s", i, lines[i].c_str());
@@ -69,8 +69,7 @@ namespace Nos3
         sim_logger->trace("Generic_magDataPoint::to_string:  Executed");
         std::stringstream output;
         output << "Magnetometer values: ";
-        int i;
-        for (i = 0; i < _generic_mag_data.size(); i++) {
+        for (unsigned int i = 0; i < _generic_mag_data.size(); i++) {
             output << _generic_mag_data[i];
             if (i < _generic_mag_data.size() - 1) {
                 output << ", ";

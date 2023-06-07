@@ -21,7 +21,7 @@ namespace Nos3
     private:
         /* Disallow these */
         ~Generic_mag42DataProvider(void) {};
-        Generic_mag42DataProvider& operator=(const Generic_mag42DataProvider&) {};
+        Generic_mag42DataProvider& operator=(const Generic_mag42DataProvider&) {return *this;};
 
         int16_t _sc;  /* Which spacecraft number to parse out of 42 data */
     };
