@@ -17,32 +17,6 @@
 */
 GENERIC_MAG_AppData_t GENERIC_MAG_AppData;
 
-static CFE_EVS_BinFilter_t  GENERIC_MAG_EventFilters[] =
-{   /* Event ID    mask */
-    {GENERIC_MAG_RESERVED_EID,           0x0000},
-    {GENERIC_MAG_STARTUP_INF_EID,        0x0000},
-    {GENERIC_MAG_LEN_ERR_EID,            0x0000},
-    {GENERIC_MAG_PIPE_ERR_EID,           0x0000},
-    {GENERIC_MAG_SUB_CMD_ERR_EID,        0x0000},
-    {GENERIC_MAG_SUB_REQ_HK_ERR_EID,     0x0000},
-    {GENERIC_MAG_PROCESS_CMD_ERR_EID,    0x0000},
-    {GENERIC_MAG_CMD_ERR_EID,            0x0000},
-    {GENERIC_MAG_CMD_NOOP_INF_EID,       0x0000},
-    {GENERIC_MAG_CMD_RESET_INF_EID,      0x0000},
-    {GENERIC_MAG_CMD_ENABLE_INF_EID,     0x0000},
-    {GENERIC_MAG_ENABLE_INF_EID,         0x0000},
-    {GENERIC_MAG_ENABLE_ERR_EID,         0x0000},
-    {GENERIC_MAG_CMD_DISABLE_INF_EID,    0x0000},
-    {GENERIC_MAG_DISABLE_INF_EID,        0x0000},
-    {GENERIC_MAG_DISABLE_ERR_EID,        0x0000},
-    {GENERIC_MAG_DEVICE_TLM_ERR_EID,     0x0000},
-    {GENERIC_MAG_REQ_DATA_ERR_EID,       0x0000},
-    {GENERIC_MAG_SPI_INIT_ERR_EID,       0x0000},
-    {GENERIC_MAG_SPI_READ_ERR_EID,       0x0000},
-    /* TODO: Add additional event IDs (EID) to the table as created */
-};
-
-
 /*
 ** Application entry point and main process loop
 */
@@ -136,9 +110,7 @@ int32 GENERIC_MAG_AppInit(void)
     /*
     ** Register the events
     */ 
-    status = CFE_EVS_Register(GENERIC_MAG_EventFilters,
-                              sizeof(GENERIC_MAG_EventFilters)/sizeof(CFE_EVS_BinFilter_t),
-                              CFE_EVS_BINARY_FILTER);    /* as default, no filters are used */
+    status = CFE_EVS_Register(NULL, 0, CFE_EVS_BINARY_FILTER);    /* as default, no filters are used */
     if (status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("GENERIC_MAG: Error registering for event services: 0x%08X\n", (unsigned int) status);
