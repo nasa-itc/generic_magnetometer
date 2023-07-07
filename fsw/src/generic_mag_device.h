@@ -38,7 +38,7 @@ typedef struct
     int32_t  MagneticIntensityY;
     int32_t  MagneticIntensityZ;
     
-} OS_PACK GENERIC_MAG_Device_Data_tlm_t;
+} __attribute__((packed)) GENERIC_MAG_Device_Data_tlm_t;
 #define GENERIC_MAG_DEVICE_DATA_LNGTH sizeof ( GENERIC_MAG_Device_Data_tlm_t )
 #define GENERIC_MAG_DEVICE_DATA_SIZE GENERIC_MAG_DEVICE_DATA_LNGTH + GENERIC_MAG_DEVICE_HDR_LEN
 
