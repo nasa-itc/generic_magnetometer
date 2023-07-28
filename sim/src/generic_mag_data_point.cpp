@@ -35,6 +35,7 @@ namespace Nos3
            _generic_mag_data[1] = std::stof(_dp.get_value_for_key(key1));
            _generic_mag_data[2] = std::stof(_dp.get_value_for_key(key2));
 
+           _not_parsed = false;
         } 
         catch(const std::exception& e) 
         {
