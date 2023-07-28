@@ -5,7 +5,7 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_magDataPoint::Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
+    Generic_magDataPoint::Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft), _not_parsed(true)
     {
         sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  42 Constructor executed");
 
@@ -13,7 +13,10 @@ namespace Nos3
         std::vector<float> axes(3, 0.0);
         _generic_mag_data = axes;
         _generic_mag_data[0] = _generic_mag_data[1] = _generic_mag_data[2] = 0.0;
+    }
 
+    void Generic_magDataPoint::do_parsing(void) const
+    {
         try {
             /*
             ** Declare 42 telemetry string prefix
@@ -21,16 +24,16 @@ namespace Nos3
             ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
             */
            std::string key0; // SC[N].AC.MAG[M].Field
-           key0.append("SC[").append(std::to_string(spacecraft)).append("].AC.MAG");
+           key0.append("SC[").append(std::to_string(_sc)).append("].AC.MAG");
            std::string key1(key0), key2(key0);
            key0.append("[0].Field");
            key1.append("[1].Field");
            key2.append("[2].Field");
            
            /* Parse 42 telemetry */
-           _generic_mag_data[0] = std::stof(dp->get_value_for_key(key0));
-           _generic_mag_data[1] = std::stof(dp->get_value_for_key(key1));
-           _generic_mag_data[2] = std::stof(dp->get_value_for_key(key2));
+           _generic_mag_data[0] = std::stof(_dp.get_value_for_key(key0));
+           _generic_mag_data[1] = std::stof(_dp.get_value_for_key(key1));
+           _generic_mag_data[2] = std::stof(_dp.get_value_for_key(key2));
 
         } 
         catch(const std::exception& e) 
