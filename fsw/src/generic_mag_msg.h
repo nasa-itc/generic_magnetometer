@@ -35,7 +35,7 @@
 typedef struct
 {
     /* Every command requires a header used to identify it */
-    uint8    CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    CFE_MSG_CommandHeader_t CmdHeader;
 
 } GENERIC_MAG_NoArgs_cmd_t;
 
@@ -45,10 +45,10 @@ typedef struct
 */
 typedef struct 
 {
-    uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    CFE_MSG_TelemetryHeader_t TlmHeader;
     GENERIC_MAG_Device_Data_tlm_t Generic_mag;
 
-} OS_PACK GENERIC_MAG_Device_tlm_t;
+} __attribute__((packed)) GENERIC_MAG_Device_tlm_t;
 #define GENERIC_MAG_DEVICE_TLM_LNGTH sizeof ( GENERIC_MAG_Device_tlm_t )
 
 
@@ -57,14 +57,14 @@ typedef struct
 */
 typedef struct 
 {
-    uint8   TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    CFE_MSG_TelemetryHeader_t TlmHeader;
     uint8   CommandErrorCount;
     uint8   CommandCount;
     uint8   DeviceErrorCount;
     uint8   DeviceCount;
     uint8   DeviceEnabled;
 
-} OS_PACK GENERIC_MAG_Hk_tlm_t;
+} __attribute__((packed)) GENERIC_MAG_Hk_tlm_t;
 #define GENERIC_MAG_HK_TLM_LNGTH sizeof ( GENERIC_MAG_Hk_tlm_t )
 
 #endif /* _GENERIC_MAG_MSG_H_ */

@@ -18,14 +18,13 @@ int32_t GENERIC_MAG_RequestData(spi_info_t *device, GENERIC_MAG_Device_Data_tlm_
 {
     int32_t status = OS_ERROR;
     uint8_t read_data[GENERIC_MAG_DEVICE_DATA_SIZE];
-    uint8_t write_data[GENERIC_MAG_DEVICE_DATA_SIZE];
     uint32_t mag_x_packet;
     uint32_t mag_y_packet;
     uint32_t mag_z_packet;
 
     /* Read data */
     if ((spi_select_chip(device) == SPI_SUCCESS) &&
-        (spi_transaction(device, write_data, read_data, sizeof(read_data), GENERIC_MAG_CFG_DELAY, GENERIC_MAG_CFG_BITS_PER_WORD, 0) == SPI_SUCCESS) &&
+        (spi_read(device, read_data, sizeof(read_data)) == SPI_SUCCESS) &&
         (spi_unselect_chip(device) == SPI_SUCCESS)) {
         status = OS_SUCCESS;
     }

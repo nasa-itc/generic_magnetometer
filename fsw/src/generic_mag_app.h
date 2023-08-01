@@ -52,7 +52,7 @@ typedef struct
     /*
     ** Operational data  - not reported in housekeeping
     */
-    CFE_SB_MsgPtr_t MsgPtr;             /* Pointer to msg received on software bus */
+    CFE_MSG_Message_t * MsgPtr;             /* Pointer to msg received on software bus */
     CFE_SB_PipeId_t CmdPipe;            /* Pipe Id for HK command pipe */
     uint32 RunStatus;                   /* App run status for controlling the application state */
 
@@ -82,10 +82,10 @@ extern GENERIC_MAG_AppData_t GENERIC_MAG_AppData; /* GENERIC_MAG App Data */
 **
 ** Local function prototypes.
 **
-** Note: Except for the entry point (GENERIC_MAG_AppMain), these
+** Note: Except for the entry point (MAG_AppMain), these
 **       functions are not called from any other source module.
 */
-void  GENERIC_MAG_AppMain(void);
+void  MAG_AppMain(void);
 int32 GENERIC_MAG_AppInit(void);
 void  GENERIC_MAG_ProcessCommandPacket(void);
 void  GENERIC_MAG_ProcessGroundCommand(void);
@@ -95,6 +95,6 @@ void  GENERIC_MAG_ReportDeviceTelemetry(void);
 void  GENERIC_MAG_ResetCounters(void);
 void  GENERIC_MAG_Enable(void);
 void  GENERIC_MAG_Disable(void);
-int32 GENERIC_MAG_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 expected_length);
+int32 GENERIC_MAG_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_length);
 
 #endif /* _GENERIC_MAG_APP_H_ */
