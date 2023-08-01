@@ -5,54 +5,37 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_magDataPoint::Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp)
+    Generic_magDataPoint::Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft), _not_parsed(true)
     {
         sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  42 Constructor executed");
 
         /* Initialize data */
         std::vector<float> axes(3, 0.0);
         _generic_mag_data = axes;
-        _generic_mag_data[0] = 0.0;
-        _generic_mag_data[1] = 0.0;
-        _generic_mag_data[2] = 0.0;
+        _generic_mag_data[0] = _generic_mag_data[1] = _generic_mag_data[2] = 0.0;
+    }
 
-        /*
-        ** Declare 42 telemetry string prefix
-        ** 42 variables defined in `42/Include/42types.h`
-        ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
-        */
-        std::ostringstream MatchString;
-        MatchString << "SC[" << spacecraft << "].AC.MAG";
-        size_t MSsize = MatchString.str().size();
+    void Generic_magDataPoint::do_parsing(void) const
+    {
+        try {
+            /*
+            ** Declare 42 telemetry string prefix
+            ** 42 variables defined in `42/Include/42types.h`
+            ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
+            */
+           std::string key0; // SC[N].AC.MAG[M].Field
+           key0.append("SC[").append(std::to_string(_sc)).append("].AC.MAG");
+           std::string key1(key0), key2(key0);
+           key0.append("[0].Field");
+           key1.append("[1].Field");
+           key2.append("[2].Field");
+           
+           /* Parse 42 telemetry */
+           _generic_mag_data[0] = std::stof(_dp.get_value_for_key(key0));
+           _generic_mag_data[1] = std::stof(_dp.get_value_for_key(key1));
+           _generic_mag_data[2] = std::stof(_dp.get_value_for_key(key2));
 
-        /* Parse 42 telemetry */
-        std::vector<std::string> lines = dp->get_lines();
-        try 
-        {
-            for (unsigned int i = 0; i < lines.size(); i++) 
-            {
-                // Debugging print
-                sim_logger->debug("Line[%d] = %s", i, lines[i].c_str());
-
-                // Compare prefix
-                if (lines[i].compare(0, MSsize, MatchString.str()) == 0) 
-                {
-                    size_t lb = lines[i].find_first_of("[", MSsize);
-                    size_t rb = lines[i].find_first_of("]", MSsize);
-                    int index = std::stoi(lines[i].substr(lb+1, rb-lb-1));
-                    if ((index >= 0) && (index < numAxes)) {
-                        std::string param(lines[i].substr(rb+2, 5));
-                        size_t equal = lines[i].find_first_of("=");
-                        std::string value(lines[i].substr(equal+1, lines[i].size()-equal-1));
-                        if (param.compare("Field") == 0) 
-                        {
-                            _generic_mag_data[index] = std::stof(value);
-                            // Debugging print
-                            sim_logger->debug("  mag[%d] stof(value) = %f ", index, std::stof(value));
-                        }
-                    }
-                }
-            }
+           _not_parsed = false;
         } 
         catch(const std::exception& e) 
         {

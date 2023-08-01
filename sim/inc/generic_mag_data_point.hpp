@@ -17,7 +17,7 @@ namespace Nos3
         /* Accessors */
         /* Provide the hardware model a way to get the specific data out of the data point */
         std::string to_string(void) const;
-        std::vector<float> getValues(void) const {return _generic_mag_data;}
+        std::vector<float> getValues(void) const {parse_data_point(); return _generic_mag_data;}
     
     private:
         /* Disallow these */
@@ -25,9 +25,19 @@ namespace Nos3
         Generic_magDataPoint(const Generic_magDataPoint&) {};
         ~Generic_magDataPoint(void) {};
 
+        // Private mutators
+        inline void parse_data_point(void) const {if (_not_parsed) do_parsing();}
+        void do_parsing(void) const;
+
+        // Private data
+        mutable Sim42DataPoint _dp;
+        int16_t _sc;
+        // mutable below so parsing can be on demand:
+        mutable bool _not_parsed;
+
         /* Specific data you need to get from the data provider to the hardware model */
         /* You only get to this data through the accessors above */
-        std::vector<float> _generic_mag_data;
+        mutable std::vector<float> _generic_mag_data;
         static const int numAxes = 3;
     };
 }
