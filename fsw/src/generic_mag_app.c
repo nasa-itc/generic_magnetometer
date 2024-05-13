@@ -240,7 +240,6 @@ void GENERIC_MAG_ProcessCommandPacket(void)
 */
 void GENERIC_MAG_ProcessGroundCommand(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
@@ -324,7 +323,6 @@ void GENERIC_MAG_ProcessGroundCommand(void)
 */
 void GENERIC_MAG_ProcessTelemetryRequest(void)
 {
-    int32 status = OS_SUCCESS;
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
@@ -362,8 +360,6 @@ void GENERIC_MAG_ProcessTelemetryRequest(void)
 */
 void GENERIC_MAG_ReportHousekeeping(void)
 {
-    int32 status = OS_SUCCESS;
-
     /* No HK data to request from device */
 
     /* Time stamp and publish housekeeping telemetry */
