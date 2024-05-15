@@ -16,7 +16,7 @@
 ** id conflict with other apps.  Performance IDs are used for cFE performance
 ** metrics.
 */
-#define GENERIC_MAG_PERF_ID          500
-#define GENERIC_MAG_DEVICE_PERF_ID   501
+#define GENERIC_MAG_PERF_ID          540
+#define GENERIC_MAG_DEVICE_PERF_ID   541
 
 #endif /* _GENERIC_MAG_PERFIDS_H_ */
