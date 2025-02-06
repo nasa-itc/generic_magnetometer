@@ -5,11 +5,17 @@
 ** GENERIC_mag Checkout Configuration
 */
 #define GENERIC_mag_CFG
-/* Note: NOS3 uart requires matching handle and bus number */
-#define GENERIC_mag_CFG_STRING           "/dev/usart_16"
-#define GENERIC_mag_CFG_HANDLE           16 
-#define GENERIC_mag_CFG_BAUDRATE_HZ      115200
-#define GENERIC_mag_CFG_MS_TIMEOUT       250
-#define GENERIC_mag_CFG_DEBUG
-
+    /* Notes: 
+    **   NOS3 spi requires matching handle and bus number
+    */
+    #define GENERIC_MAG_CFG_STRING           "spi_2"
+    #define GENERIC_MAG_CFG_HANDLE           2
+    #define GENERIC_MAG_CFG_DELAY            32       /* SPI transaction delay, in microseconds */
+    #define GENERIC_MAG_CFG_BAUD             1000000
+    #define GENERIC_MAG_CFG_SPI_MODE         1
+    #define GENERIC_MAG_CFG_BITS_PER_WORD    8
+    #define GENERIC_MAG_CFG_BUS              0
+    #define GENERIC_MAG_CFG_CS               2
+    /* Note: Debug flag disabled (commented out) by default */
+    //#define GENERIC_MAG_CFG_DEBUG     
 #endif /* _GENERIC_mag_CHECKOUT_DEVICE_CFG_H_ */

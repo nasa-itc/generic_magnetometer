@@ -15,9 +15,8 @@
 /*
 ** Global Variables
 */
-uart_info_t Generic_magUart;
-GENERIC_mag_Device_HK_tlm_t Generic_magHK;
-GENERIC_mag_Device_Data_tlm_t Generic_magData;
+spi_info_t Generic_magSpi;
+GENERIC_MAG_Device_Data_tlm_t Generic_magData;
 
 /*
 ** Component Functions
@@ -30,12 +29,8 @@ void print_help(void)
         "exit                               - Exit app                        \n"
         "noop                               - No operation command to device  \n"
         "  n                                - ^                               \n"
-        "hk                                 - Request device housekeeping     \n"
-        "  h                                - ^                               \n"
         "generic_mag                             - Request generic_mag data             \n"
         "  s                                - ^                               \n"
-        "cfg #                              - Send configuration #            \n"
-        "  c #                              - ^                               \n"
         "\n"
     );
 }
@@ -58,37 +53,13 @@ int get_command(const char* str)
     {
         status = CMD_EXIT;
     }
-    else if(strcmp(lcmd, "noop") == 0) 
-    {
-        status = CMD_NOOP;
-    }
-    else if(strcmp(lcmd, "n") == 0) 
-    {
-        status = CMD_NOOP;
-    }
-    else if(strcmp(lcmd, "hk") == 0) 
-    {
-        status = CMD_HK;
-    }
-    else if(strcmp(lcmd, "h") == 0) 
-    {
-        status = CMD_HK;
-    }
-    else if(strcmp(lcmd, "generic_mag") == 0) 
+    if(strcmp(lcmd, "generic_mag") == 0) 
     {
         status = CMD_GENERIC_mag;
     }
     else if(strcmp(lcmd, "s") == 0) 
     {
         status = CMD_GENERIC_mag;
-    }
-    else if(strcmp(lcmd, "cfg") == 0) 
-    {
-        status = CMD_CFG;
-    }
-    else if(strcmp(lcmd, "c") == 0) 
-    {
-        status = CMD_CFG;
     }
     return status;
 }
@@ -111,40 +82,10 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
             exit_status = OS_ERROR;
             break;
 
-        case CMD_NOOP:
-            if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
-            {
-                status = GENERIC_mag_CommandDevice(&Generic_magUart, GENERIC_mag_DEVICE_NOOP_CMD, 0);
-                if (status == OS_SUCCESS)
-                {
-                    OS_printf("NOOP command success\n");
-                }
-                else
-                {
-                    OS_printf("NOOP command failed!\n");
-                }
-            }
-            break;
-
-        case CMD_HK:
-            if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
-            {
-                status = GENERIC_mag_RequestHK(&Generic_magUart, &Generic_magHK);
-                if (status == OS_SUCCESS)
-                {
-                    OS_printf("GENERIC_mag_RequestHK command success\n");
-                }
-                else
-                {
-                    OS_printf("GENERIC_mag_RequestHK command failed!\n");
-                }
-            }
-            break;
-
         case CMD_GENERIC_mag:
             if (check_number_arguments(num_tokens, 0) == OS_SUCCESS)
             {
-                status = GENERIC_mag_RequestData(&Generic_magUart, &Generic_magData);
+                status = GENERIC_MAG_RequestData(&Generic_magSpi, &Generic_magData);
                 if (status == OS_SUCCESS)
                 {
                     OS_printf("GENERIC_mag_RequestData command success\n");
@@ -155,23 +96,6 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
                 }
             }
             break;
-
-        case CMD_CFG:
-            if (check_number_arguments(num_tokens, 1) == OS_SUCCESS)
-            {
-                config = atoi(tokens[0]);
-                status = GENERIC_mag_CommandDevice(&Generic_magUart, GENERIC_mag_DEVICE_CFG_CMD, config);
-                if (status == OS_SUCCESS)
-                {
-                    OS_printf("Configuration command success with value %u\n", config);
-                }
-                else
-                {
-                    OS_printf("Configuration command failed!\n");
-                }
-            }
-            break;
-        
         default: 
             OS_printf("Invalid command format, type 'help' for more info\n");
             break;
@@ -196,18 +120,32 @@ int main(int argc, char *argv[])
     #endif
 
     /* Open device specific protocols */
-    Generic_magUart.deviceString = GENERIC_mag_CFG_STRING;
-    Generic_magUart.handle = GENERIC_mag_CFG_HANDLE;
-    Generic_magUart.isOpen = PORT_CLOSED;
-    Generic_magUart.baud = GENERIC_mag_CFG_BAUDRATE_HZ;
-    status = uart_init_port(&Generic_magUart);
+    Generic_magSpi.deviceString = GENERIC_MAG_CFG_STRING;
+    Generic_magSpi.handle = GENERIC_MAG_CFG_HANDLE;
+    Generic_magSpi.baudrate = GENERIC_MAG_CFG_BAUD;
+    Generic_magSpi.spi_mode = GENERIC_MAG_CFG_SPI_MODE;
+    Generic_magSpi.bits_per_word = GENERIC_MAG_CFG_BITS_PER_WORD;
+    Generic_magSpi.bus = GENERIC_MAG_CFG_BUS;
+    Generic_magSpi.cs = GENERIC_MAG_CFG_CS;
+
+
+
+
+
+
+
+    // Generic_magSpi.deviceString = GENERIC_mag_CFG_STRING;
+    // Generic_magSpi.handle = GENERIC_mag_CFG_HANDLE;
+    // Generic_magSpi.isOpen = PORT_CLOSED;
+    // Generic_magSpi.baud = GENERIC_mag_CFG_BAUDRATE_HZ;
+    status = spi_init_dev(&Generic_magSpi);
     if (status == OS_SUCCESS)
     {
-        printf("UART device %s configured with baudrate %d \n", Generic_magUart.deviceString, Generic_magUart.baud);
+        printf("UART device %s configured with baudrate %d \n", Generic_magSpi.deviceString, Generic_magSpi.baudrate);
     }
     else
     {
-        printf("UART device %s failed to initialize! \n", Generic_magUart.deviceString);
+        printf("UART device %s failed to initialize! \n", Generic_magSpi.deviceString);
         run_status = OS_ERROR;
     }
 
@@ -248,8 +186,7 @@ int main(int argc, char *argv[])
     }
 
     // Close the device 
-    uart_close_port(&Generic_magUart);
-
+    status = spi_close_device(&Generic_magSpi);
     #ifdef _NOS_ENGINE_LINK_
         nos_destroy_link();
     #endif
