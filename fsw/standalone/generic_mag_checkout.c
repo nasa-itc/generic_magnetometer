@@ -27,9 +27,7 @@ void print_help(void)
         "---------------------------------------------------------------------\n"
         "help                               - Display help                    \n"
         "exit                               - Exit app                        \n"
-        "noop                               - No operation command to device  \n"
-        "  n                                - ^                               \n"
-        "generic_mag                             - Request generic_mag data             \n"
+        "generic_mag                        - Request generic_mag data        \n"
         "  s                                - ^                               \n"
         "\n"
     );
@@ -127,25 +125,14 @@ int main(int argc, char *argv[])
     Generic_magSpi.bits_per_word = GENERIC_MAG_CFG_BITS_PER_WORD;
     Generic_magSpi.bus = GENERIC_MAG_CFG_BUS;
     Generic_magSpi.cs = GENERIC_MAG_CFG_CS;
-
-
-
-
-
-
-
-    // Generic_magSpi.deviceString = GENERIC_mag_CFG_STRING;
-    // Generic_magSpi.handle = GENERIC_mag_CFG_HANDLE;
-    // Generic_magSpi.isOpen = PORT_CLOSED;
-    // Generic_magSpi.baud = GENERIC_mag_CFG_BAUDRATE_HZ;
     status = spi_init_dev(&Generic_magSpi);
     if (status == OS_SUCCESS)
     {
-        printf("UART device %s configured with baudrate %d \n", Generic_magSpi.deviceString, Generic_magSpi.baudrate);
+        printf("SPI device %s configured with baudrate %d \n", Generic_magSpi.deviceString, Generic_magSpi.baudrate);
     }
     else
     {
-        printf("UART device %s failed to initialize! \n", Generic_magSpi.deviceString);
+        printf("SPI device %s failed to initialize! \n", Generic_magSpi.deviceString);
         run_status = OS_ERROR;
     }
 
