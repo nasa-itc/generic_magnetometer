@@ -86,6 +86,9 @@ int process_command(int cc, int num_tokens, char tokens[MAX_INPUT_TOKENS][MAX_IN
                 status = GENERIC_MAG_RequestData(&Generic_magSpi, &Generic_magData);
                 if (status == OS_SUCCESS)
                 {
+                    OS_printf("Magnetic Intensity X: %d\n", Generic_magData.MagneticIntensityX);
+                    OS_printf("Magnetic Intensity Y: %d\n", Generic_magData.MagneticIntensityY);
+                    OS_printf("Magnetic Intensity Z: %d\n", Generic_magData.MagneticIntensityZ);
                     OS_printf("GENERIC_mag_RequestData command success\n");
                 }
                 else
