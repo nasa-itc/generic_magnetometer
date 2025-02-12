@@ -55,7 +55,7 @@ int get_command(const char* str)
     {
         status = CMD_GENERIC_mag;
     }
-    else if(strcmp(lcmd, "s") == 0) 
+    else if(strcmp(lcmd, "m") == 0) 
     {
         status = CMD_GENERIC_mag;
     }
