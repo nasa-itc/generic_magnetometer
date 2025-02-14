@@ -2,11 +2,11 @@
 ** File: generic_mag_checkout.h
 **
 ** Purpose:
-**   This is the header file for the GENERIC_MAG checkout.
+**   This is the header file for the GENERIC_mag checkout.
 **
 *******************************************************************************/
-#ifndef _GENERIC_MAG_CHECKOUT_H_
-#define _GENERIC_MAG_CHECKOUT_H_
+#ifndef _GENERIC_mag_CHECKOUT_H_
+#define _GENERIC_mag_CHECKOUT_H_
 
 /*
 ** Includes
@@ -27,6 +27,9 @@
 #include "device_cfg.h"
 #include "generic_mag_device.h"
 
+#if TGTNAME == cpu1
+    #include "nos_link.h"
+#endif
 
 /*
 ** Standard Defines
@@ -37,7 +40,6 @@
 #define MAX_INPUT_TOKEN_SIZE  	50
 #define TELEM_BUF_LEN           8
 
-
 /*
 ** Command Defines
 */
@@ -46,9 +48,8 @@
 #define CMD_EXIT     1
 #define CMD_NOOP     2
 #define CMD_HK       3
-#define CMD_GENERIC_MAG   4
+#define CMD_GENERIC_mag   4
 #define CMD_CFG      5
-
 
 /*
 ** Prototypes
@@ -57,12 +58,10 @@ void print_help(void);
 int  get_command(const char* str);
 int  main(int argc, char *argv[]);
 
-
 /*
 ** Generic Prototypes
 */
 int check_number_arguments(int actual, int expected);
 void to_lower(char* str);
 
-
-#endif /* _GENERIC_MAG_CHECKOUT_H_ */
+#endif /* _GENERIC_mag_CHECKOUT_H_ */
