@@ -8,9 +8,11 @@ include_directories(mission_inc)
 include_directories(platform_inc)
 include_directories(src)
 
+include_directories(../shared)
 include_directories(${hwlib_MISSION_DIR}/fsw/public_inc)
 
 aux_source_directory(src APP_SRC_FILES)
 
 # Create the app module
-add_cfe_app(generic_mag ${APP_SRC_FILES})
+add_cfe_app(generic_mag ${APP_SRC_FILES}
+            ../shared/generic_mag_device.c)
