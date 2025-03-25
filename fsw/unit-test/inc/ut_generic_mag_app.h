@@ -46,6 +46,6 @@
 /*
  * Allow UT access to the global "GENERIC_mag_APP_Data" object.
  */
-// extern GENERIC_mag_AppData_t GENERIC_mag_APP_Data;
+//extern GENERIC_mag_AppData_t GENERIC_mag_APP_Data;
 
 #endif /* UT_GENERIC_mag_APP_H */
