@@ -11,7 +11,6 @@
 */
 #include "generic_mag_app.h"
 
-
 /*
 ** Global Data
 */
@@ -29,7 +28,7 @@ void MAG_AppMain(void)
     */
     CFE_ES_PerfLogEntry(GENERIC_MAG_PERF_ID);
 
-    /* 
+    /*
     ** Perform application initialization
     */
     status = GENERIC_MAG_AppInit();
@@ -48,13 +47,14 @@ void MAG_AppMain(void)
         */
         CFE_ES_PerfLogExit(GENERIC_MAG_PERF_ID);
 
-        /* 
+        /*
         ** Pend on the arrival of the next Software Bus message
         ** Note that this is the standard, but timeouts are available
         */
-        status = CFE_SB_ReceiveBuffer((CFE_SB_Buffer_t **)&GENERIC_MAG_AppData.MsgPtr,  GENERIC_MAG_AppData.CmdPipe,  CFE_SB_PEND_FOREVER);
-        
-        /* 
+        status = CFE_SB_ReceiveBuffer((CFE_SB_Buffer_t **)&GENERIC_MAG_AppData.MsgPtr, GENERIC_MAG_AppData.CmdPipe,
+                                      CFE_SB_PEND_FOREVER);
+
+        /*
         ** Begin performance metrics on anything after this line. This will help to determine
         ** where we are spending most of the time during this app execution.
         */
@@ -71,7 +71,8 @@ void MAG_AppMain(void)
         }
         else
         {
-            CFE_EVS_SendEvent(GENERIC_MAG_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "GENERIC_MAG: SB Pipe Read Error = %d", (int) status);
+            CFE_EVS_SendEvent(GENERIC_MAG_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "GENERIC_MAG: SB Pipe Read Error = %d",
+                              (int)status);
             GENERIC_MAG_AppData.RunStatus = CFE_ES_RunStatus_APP_ERROR;
         }
     }
@@ -90,39 +91,38 @@ void MAG_AppMain(void)
     ** Exit the application
     */
     CFE_ES_ExitApp(GENERIC_MAG_AppData.RunStatus);
-} 
+}
 
-
-/* 
+/*
 ** Initialize application
 */
 int32 GENERIC_MAG_AppInit(void)
 {
     int32 status = OS_SUCCESS;
-    
+
     GENERIC_MAG_AppData.RunStatus = CFE_ES_RunStatus_APP_RUN;
 
     /*
     ** Register the events
-    */ 
-    status = CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY);    /* as default, no filters are used */
+    */
+    status = CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY); /* as default, no filters are used */
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("GENERIC_MAG: Error registering for event services: 0x%08X\n", (unsigned int) status);
-       return status;
+        CFE_ES_WriteToSysLog("GENERIC_MAG: Error registering for event services: 0x%08X\n", (unsigned int)status);
+        return status;
     }
 
     /*
-    ** Create the Software Bus command pipe 
+    ** Create the Software Bus command pipe
     */
     status = CFE_SB_CreatePipe(&GENERIC_MAG_AppData.CmdPipe, GENERIC_MAG_PIPE_DEPTH, "MAG_CMD_PIPE");
     if (status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(GENERIC_MAG_PIPE_ERR_EID, CFE_EVS_EventType_ERROR,
-            "Error Creating SB Pipe,RC=0x%08X",(unsigned int) status);
-       return status;
+        CFE_EVS_SendEvent(GENERIC_MAG_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "Error Creating SB Pipe,RC=0x%08X",
+                          (unsigned int)status);
+        return status;
     }
-    
+
     /*
     ** Subscribe to ground commands
     */
@@ -130,8 +130,8 @@ int32 GENERIC_MAG_AppInit(void)
     if (status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(GENERIC_MAG_SUB_CMD_ERR_EID, CFE_EVS_EventType_ERROR,
-            "Error Subscribing to HK Gnd Cmds, MID=0x%04X, RC=0x%08X",
-            GENERIC_MAG_CMD_MID, (unsigned int) status);
+                          "Error Subscribing to HK Gnd Cmds, MID=0x%04X, RC=0x%08X", GENERIC_MAG_CMD_MID,
+                          (unsigned int)status);
         return status;
     }
 
@@ -142,29 +142,27 @@ int32 GENERIC_MAG_AppInit(void)
     if (status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(GENERIC_MAG_SUB_REQ_HK_ERR_EID, CFE_EVS_EventType_ERROR,
-            "Error Subscribing to HK Request, MID=0x%04X, RC=0x%08X",
-            GENERIC_MAG_REQ_HK_MID, (unsigned int) status);
+                          "Error Subscribing to HK Request, MID=0x%04X, RC=0x%08X", GENERIC_MAG_REQ_HK_MID,
+                          (unsigned int)status);
         return status;
     }
 
-    /* 
-    ** Initialize the published HK message - this HK message will contain the 
+    /*
+    ** Initialize the published HK message - this HK message will contain the
     ** telemetry that has been defined in the GENERIC_MAG_HkTelemetryPkt for this app.
     */
-    CFE_MSG_Init(CFE_MSG_PTR(GENERIC_MAG_AppData.HkTelemetryPkt.TlmHeader),
-                   CFE_SB_ValueToMsgId(GENERIC_MAG_HK_TLM_MID),
-                   GENERIC_MAG_HK_TLM_LNGTH);
+    CFE_MSG_Init(CFE_MSG_PTR(GENERIC_MAG_AppData.HkTelemetryPkt.TlmHeader), CFE_SB_ValueToMsgId(GENERIC_MAG_HK_TLM_MID),
+                 GENERIC_MAG_HK_TLM_LNGTH);
 
     /*
     ** Initialize the device packet message
     ** This packet is specific to your application
     */
-    CFE_MSG_Init(CFE_MSG_PTR(GENERIC_MAG_AppData.DevicePkt.TlmHeader),
-                   CFE_SB_ValueToMsgId(GENERIC_MAG_DEVICE_TLM_MID),
-                   GENERIC_MAG_DEVICE_TLM_LNGTH);
+    CFE_MSG_Init(CFE_MSG_PTR(GENERIC_MAG_AppData.DevicePkt.TlmHeader), CFE_SB_ValueToMsgId(GENERIC_MAG_DEVICE_TLM_MID),
+                 GENERIC_MAG_DEVICE_TLM_LNGTH);
 
-    /* 
-    ** Always reset all counters during application initialization 
+    /*
+    ** Always reset all counters during application initialization
     */
     GENERIC_MAG_ResetCounters();
 
@@ -173,33 +171,29 @@ int32 GENERIC_MAG_AppInit(void)
     ** Note that counters are excluded as they were reset in the previous code block
     */
     GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_DISABLED;
-    GENERIC_MAG_AppData.Generic_magSpi.deviceString = GENERIC_MAG_CFG_STRING;
-    GENERIC_MAG_AppData.Generic_magSpi.handle = GENERIC_MAG_CFG_HANDLE;
-    GENERIC_MAG_AppData.Generic_magSpi.baudrate = GENERIC_MAG_CFG_BAUD;
-    GENERIC_MAG_AppData.Generic_magSpi.spi_mode = GENERIC_MAG_CFG_SPI_MODE;
+    GENERIC_MAG_AppData.Generic_magSpi.deviceString  = GENERIC_MAG_CFG_STRING;
+    GENERIC_MAG_AppData.Generic_magSpi.handle        = GENERIC_MAG_CFG_HANDLE;
+    GENERIC_MAG_AppData.Generic_magSpi.baudrate      = GENERIC_MAG_CFG_BAUD;
+    GENERIC_MAG_AppData.Generic_magSpi.spi_mode      = GENERIC_MAG_CFG_SPI_MODE;
     GENERIC_MAG_AppData.Generic_magSpi.bits_per_word = GENERIC_MAG_CFG_BITS_PER_WORD;
-    GENERIC_MAG_AppData.Generic_magSpi.bus = GENERIC_MAG_CFG_BUS;
-    GENERIC_MAG_AppData.Generic_magSpi.cs = GENERIC_MAG_CFG_CS;
+    GENERIC_MAG_AppData.Generic_magSpi.bus           = GENERIC_MAG_CFG_BUS;
+    GENERIC_MAG_AppData.Generic_magSpi.cs            = GENERIC_MAG_CFG_CS;
 
-    /* 
-     ** Send an information event that the app has initialized. 
+    /*
+     ** Send an information event that the app has initialized.
      ** This is useful for debugging the loading of individual applications.
      */
     status = CFE_EVS_SendEvent(GENERIC_MAG_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION,
-               "GENERIC_MAG App Initialized. Version %d.%d.%d.%d",
-                GENERIC_MAG_MAJOR_VERSION,
-                GENERIC_MAG_MINOR_VERSION, 
-                GENERIC_MAG_REVISION, 
-                GENERIC_MAG_MISSION_REV);	
+                               "GENERIC_MAG App Initialized. Version %d.%d.%d.%d", GENERIC_MAG_MAJOR_VERSION,
+                               GENERIC_MAG_MINOR_VERSION, GENERIC_MAG_REVISION, GENERIC_MAG_MISSION_REV);
     if (status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("GENERIC_MAG: Error sending initialization event: 0x%08X\n", (unsigned int) status);
+        CFE_ES_WriteToSysLog("GENERIC_MAG: Error sending initialization event: 0x%08X\n", (unsigned int)status);
     }
     return status;
-} 
+}
 
-
-/* 
+/*
 ** Process packets received on the GENERIC_MAG command pipe
 */
 void GENERIC_MAG_ProcessCommandPacket(void)
@@ -223,24 +217,24 @@ void GENERIC_MAG_ProcessCommandPacket(void)
             break;
 
         /*
-        ** All other invalid messages that this app doesn't recognize, 
-        ** increment the command error counter and log as an error event.  
+        ** All other invalid messages that this app doesn't recognize,
+        ** increment the command error counter and log as an error event.
         */
         default:
             GENERIC_MAG_AppData.HkTelemetryPkt.CommandErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_PROCESS_CMD_ERR_EID,CFE_EVS_EventType_ERROR, "GENERIC_MAG: Invalid command packet, MID = 0x%x", CFE_SB_MsgIdToValue(MsgId));
+            CFE_EVS_SendEvent(GENERIC_MAG_PROCESS_CMD_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "GENERIC_MAG: Invalid command packet, MID = 0x%x", CFE_SB_MsgIdToValue(MsgId));
             break;
     }
     return;
-} 
-
+}
 
 /*
 ** Process ground commands
 */
 void GENERIC_MAG_ProcessGroundCommand(void)
 {
-    CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
+    CFE_SB_MsgId_t    MsgId       = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
     /*
@@ -260,13 +254,14 @@ void GENERIC_MAG_ProcessGroundCommand(void)
         */
         case GENERIC_MAG_NOOP_CC:
             /*
-            ** First, verify the command length immediately after CC identification 
+            ** First, verify the command length immediately after CC identification
             ** Note that VerifyCmdLength handles the command and command error counters
             */
             if (GENERIC_MAG_VerifyCmdLength(GENERIC_MAG_AppData.MsgPtr, sizeof(GENERIC_MAG_NoArgs_cmd_t)) == OS_SUCCESS)
             {
                 /* Second, send EVS event on successful receipt ground commands*/
-                CFE_EVS_SendEvent(GENERIC_MAG_CMD_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_MAG: NOOP command received");
+                CFE_EVS_SendEvent(GENERIC_MAG_CMD_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                  "GENERIC_MAG: NOOP command received");
                 /* Third, do the desired command action if applicable, in the case of NOOP it is no operation */
             }
             break;
@@ -277,7 +272,8 @@ void GENERIC_MAG_ProcessGroundCommand(void)
         case GENERIC_MAG_RESET_COUNTERS_CC:
             if (GENERIC_MAG_VerifyCmdLength(GENERIC_MAG_AppData.MsgPtr, sizeof(GENERIC_MAG_NoArgs_cmd_t)) == OS_SUCCESS)
             {
-                CFE_EVS_SendEvent(GENERIC_MAG_CMD_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_MAG: RESET counters command received");
+                CFE_EVS_SendEvent(GENERIC_MAG_CMD_RESET_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                  "GENERIC_MAG: RESET counters command received");
                 GENERIC_MAG_ResetCounters();
             }
             break;
@@ -288,7 +284,8 @@ void GENERIC_MAG_ProcessGroundCommand(void)
         case GENERIC_MAG_ENABLE_CC:
             if (GENERIC_MAG_VerifyCmdLength(GENERIC_MAG_AppData.MsgPtr, sizeof(GENERIC_MAG_NoArgs_cmd_t)) == OS_SUCCESS)
             {
-                CFE_EVS_SendEvent(GENERIC_MAG_CMD_ENABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_MAG: Enable command received");
+                CFE_EVS_SendEvent(GENERIC_MAG_CMD_ENABLE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                  "GENERIC_MAG: Enable command received");
                 GENERIC_MAG_Enable();
             }
             break;
@@ -299,7 +296,8 @@ void GENERIC_MAG_ProcessGroundCommand(void)
         case GENERIC_MAG_DISABLE_CC:
             if (GENERIC_MAG_VerifyCmdLength(GENERIC_MAG_AppData.MsgPtr, sizeof(GENERIC_MAG_NoArgs_cmd_t)) == OS_SUCCESS)
             {
-                CFE_EVS_SendEvent(GENERIC_MAG_CMD_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_MAG: Disable command received");
+                CFE_EVS_SendEvent(GENERIC_MAG_CMD_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                  "GENERIC_MAG: Disable command received");
                 GENERIC_MAG_Disable();
             }
             break;
@@ -310,20 +308,20 @@ void GENERIC_MAG_ProcessGroundCommand(void)
         default:
             /* Increment the error counter upon receipt of an invalid command */
             GENERIC_MAG_AppData.HkTelemetryPkt.CommandErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_CMD_ERR_EID, CFE_EVS_EventType_ERROR, 
-                "GENERIC_MAG: Invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", CFE_SB_MsgIdToValue(MsgId), CommandCode);
+            CFE_EVS_SendEvent(GENERIC_MAG_CMD_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "GENERIC_MAG: Invalid command code for packet, MID = 0x%x, cmdCode = 0x%x",
+                              CFE_SB_MsgIdToValue(MsgId), CommandCode);
             break;
     }
     return;
-} 
-
+}
 
 /*
 ** Process Telemetry Request - Triggered in response to a telemetery request
 */
 void GENERIC_MAG_ProcessTelemetryRequest(void)
 {
-    CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
+    CFE_SB_MsgId_t    MsgId       = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
     /* MsgId is only needed if the command code is not recognized. See default case */
@@ -347,15 +345,15 @@ void GENERIC_MAG_ProcessTelemetryRequest(void)
         default:
             /* Increment the error counter upon receipt of an invalid command */
             GENERIC_MAG_AppData.HkTelemetryPkt.CommandErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_DEVICE_TLM_ERR_EID, CFE_EVS_EventType_ERROR, 
-                "GENERIC_MAG: Invalid command code for packet, MID = 0x%x, cmdCode = 0x%x", CFE_SB_MsgIdToValue(MsgId), CommandCode);
+            CFE_EVS_SendEvent(GENERIC_MAG_DEVICE_TLM_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "GENERIC_MAG: Invalid command code for packet, MID = 0x%x, cmdCode = 0x%x",
+                              CFE_SB_MsgIdToValue(MsgId), CommandCode);
             break;
     }
     return;
 }
 
-
-/* 
+/*
 ** Report Application Housekeeping
 */
 void GENERIC_MAG_ReportHousekeeping(void)
@@ -363,11 +361,10 @@ void GENERIC_MAG_ReportHousekeeping(void)
     /* No HK data to request from device */
 
     /* Time stamp and publish housekeeping telemetry */
-    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &GENERIC_MAG_AppData.HkTelemetryPkt);
-    CFE_SB_TransmitMsg((CFE_MSG_Message_t *) &GENERIC_MAG_AppData.HkTelemetryPkt, true);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *)&GENERIC_MAG_AppData.HkTelemetryPkt);
+    CFE_SB_TransmitMsg((CFE_MSG_Message_t *)&GENERIC_MAG_AppData.HkTelemetryPkt, true);
     return;
 }
-
 
 /*
 ** Collect and Report Device Telemetry
@@ -379,25 +376,25 @@ void GENERIC_MAG_ReportDeviceTelemetry(void)
     /* Check that device is enabled */
     if (GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_MAG_DEVICE_ENABLED)
     {
-        status = GENERIC_MAG_RequestData(&GENERIC_MAG_AppData.Generic_magSpi, (GENERIC_MAG_Device_Data_tlm_t*) &GENERIC_MAG_AppData.DevicePkt.Generic_mag);
+        status = GENERIC_MAG_RequestData(&GENERIC_MAG_AppData.Generic_magSpi,
+                                         (GENERIC_MAG_Device_Data_tlm_t *)&GENERIC_MAG_AppData.DevicePkt.Generic_mag);
         if (status == OS_SUCCESS)
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount++;
             /* Time stamp and publish data telemetry */
-            CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &GENERIC_MAG_AppData.DevicePkt);
-            CFE_SB_TransmitMsg((CFE_MSG_Message_t *) &GENERIC_MAG_AppData.DevicePkt, true);
+            CFE_SB_TimeStampMsg((CFE_MSG_Message_t *)&GENERIC_MAG_AppData.DevicePkt);
+            CFE_SB_TransmitMsg((CFE_MSG_Message_t *)&GENERIC_MAG_AppData.DevicePkt, true);
         }
         else
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_REQ_DATA_ERR_EID, CFE_EVS_EventType_ERROR, 
-                    "GENERIC_MAG: Request device data reported error %d", status);
+            CFE_EVS_SendEvent(GENERIC_MAG_REQ_DATA_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "GENERIC_MAG: Request device data reported error %d", status);
         }
     }
     /* Intentionally do not report errors if disabled */
     return;
 }
-
 
 /*
 ** Reset all global counter variables
@@ -405,12 +402,11 @@ void GENERIC_MAG_ReportDeviceTelemetry(void)
 void GENERIC_MAG_ResetCounters(void)
 {
     GENERIC_MAG_AppData.HkTelemetryPkt.CommandErrorCount = 0;
-    GENERIC_MAG_AppData.HkTelemetryPkt.CommandCount = 0;
-    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount = 0;
-    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount = 0;
+    GENERIC_MAG_AppData.HkTelemetryPkt.CommandCount      = 0;
+    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount  = 0;
+    GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount       = 0;
     return;
-} 
-
+}
 
 /*
 ** Enable Component
@@ -433,17 +429,18 @@ void GENERIC_MAG_Enable(void)
         else
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_SPI_INIT_ERR_EID, CFE_EVS_EventType_ERROR, "GENERIC_MAG: SPI port initialization error %d", status);
+            CFE_EVS_SendEvent(GENERIC_MAG_SPI_INIT_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "GENERIC_MAG: SPI port initialization error %d", status);
         }
     }
     else
     {
         GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-        CFE_EVS_SendEvent(GENERIC_MAG_ENABLE_ERR_EID, CFE_EVS_EventType_ERROR, "GENERIC_MAG: Device enable failed, already enabled");
+        CFE_EVS_SendEvent(GENERIC_MAG_ENABLE_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "GENERIC_MAG: Device enable failed, already enabled");
     }
     return;
 }
-
 
 /*
 ** Disable Component
@@ -461,32 +458,34 @@ void GENERIC_MAG_Disable(void)
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceCount++;
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_DISABLED;
-            CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION, "GENERIC_MAG: Device disabled");
+            CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "GENERIC_MAG: Device disabled");
         }
         else
         {
             GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-            CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_ERR_EID, CFE_EVS_EventType_ERROR, "GENERIC_MAG: SPI port close error %d", status);
+            CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "GENERIC_MAG: SPI port close error %d", status);
         }
     }
     else
     {
         GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
-        CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_ERR_EID, CFE_EVS_EventType_ERROR, "GENERIC_MAG: Device disable failed, already disabled");
+        CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "GENERIC_MAG: Device disable failed, already disabled");
     }
     return;
 }
 
-
 /*
 ** Verify command packet length matches expected
 */
-int32 GENERIC_MAG_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_length)
-{     
-    int32 status = OS_SUCCESS;
-    CFE_SB_MsgId_t msg_id = CFE_SB_INVALID_MSG_ID;
-    CFE_MSG_FcnCode_t cmd_code = 0;
-    size_t actual_length = 0;
+int32 GENERIC_MAG_VerifyCmdLength(CFE_MSG_Message_t *msg, uint16 expected_length)
+{
+    int32             status        = OS_SUCCESS;
+    CFE_SB_MsgId_t    msg_id        = CFE_SB_INVALID_MSG_ID;
+    CFE_MSG_FcnCode_t cmd_code      = 0;
+    size_t            actual_length = 0;
 
     CFE_MSG_GetSize(msg, &actual_length);
     if (expected_length == actual_length)
@@ -500,8 +499,8 @@ int32 GENERIC_MAG_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_lengt
         CFE_MSG_GetFcnCode(msg, &cmd_code);
 
         CFE_EVS_SendEvent(GENERIC_MAG_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %ld, Expected = %d",
-              CFE_SB_MsgIdToValue(msg_id), cmd_code, actual_length, expected_length);
+                          "Invalid msg length: ID = 0x%X,  CC = %d, Len = %ld, Expected = %d",
+                          CFE_SB_MsgIdToValue(msg_id), cmd_code, actual_length, expected_length);
 
         status = OS_ERROR;
 
@@ -509,4 +508,4 @@ int32 GENERIC_MAG_VerifyCmdLength(CFE_MSG_Message_t * msg, uint16 expected_lengt
         GENERIC_MAG_AppData.HkTelemetryPkt.CommandErrorCount++;
     }
     return status;
-} 
+}
