@@ -114,25 +114,24 @@ initial_device_error_count = tlm("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ERR_COUN
 
 cmd("GENERIC_MAG GENERIC_MAG_REQ_DATA")
 
-truth_42_bvb0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_0")
-truth_42_bvb1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_1")
-truth_42_bvb2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_2")
-
-mag_0 = tlm("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_X")
-mag_1 = tlm("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Y")
-mag_2 = tlm("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Z")
-
-truth_42_bvb0_diff = (mag_0*0.000000001 - truth_42_bvb0).abs()
-truth_42_bvb1_diff = (mag_1*0.000000001 - truth_42_bvb1).abs()
-truth_42_bvb2_diff = (mag_2*0.000000001 - truth_42_bvb2).abs()
-diff_margin = 0.00003
+diff = 500
 
 wait_check("GENERIC_MAG GENERIC_MAG_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
 wait_check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
 
-wait_check_expression("truth_42_bvb0_diff <= diff_margin # #{truth_42_bvb0_diff} <= #{diff_margin}", 15)
-wait_check_expression("truth_42_bvb1_diff <= diff_margin # #{truth_42_bvb1_diff} <= #{diff_margin}", 15)
-wait_check_expression("truth_42_bvb2_diff <= diff_margin # #{truth_42_bvb2_diff} <= #{diff_margin}", 15)
+truth_42_bvb0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_0")
+bvb_adjusted_0 = truth_42_bvb0*1000000000
+wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_X",bvb_adjusted_0, diff, 15)
+
+truth_42_bvb1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_1")
+bvb_adjusted_1 = truth_42_bvb0*1000000000
+wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Y",bvb_adjusted_1, diff, 15)
+
+truth_42_bvb2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_2")
+bvb_adjusted_2 = truth_42_bvb2*1000000000
+wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Z",bvb_adjusted_2, diff, 15)
+
+
 
 sleep(5)
 
