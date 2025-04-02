@@ -124,7 +124,7 @@ bvb_adjusted_0 = truth_42_bvb0*1000000000
 wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_X",bvb_adjusted_0, diff, 15)
 
 truth_42_bvb1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_1")
-bvb_adjusted_1 = truth_42_bvb0*1000000000
+bvb_adjusted_1 = truth_42_bvb1*1000000000
 wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Y",bvb_adjusted_1, diff, 15)
 
 truth_42_bvb2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_2")

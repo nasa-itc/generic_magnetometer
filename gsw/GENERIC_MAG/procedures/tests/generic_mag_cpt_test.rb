@@ -114,7 +114,7 @@ initial_device_error_count = tlm("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ERR_COUN
 
 cmd("GENERIC_MAG GENERIC_MAG_REQ_DATA")
 
-diff = 5000
+diff = 500
 
 wait_check("GENERIC_MAG GENERIC_MAG_HK_TLM CMD_ERR_COUNT == #{initial_error_count}", 30)
 wait_check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ERR_COUNT == #{initial_device_error_count}", 30)
@@ -124,7 +124,7 @@ bvb_adjusted_0 = truth_42_bvb0*1000000000
 wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_X",bvb_adjusted_0, diff, 15)
 
 truth_42_bvb1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_1")
-bvb_adjusted_1 = truth_42_bvb0*1000000000
+bvb_adjusted_1 = truth_42_bvb1*1000000000
 wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Y",bvb_adjusted_1, diff, 15)
 
 truth_42_bvb2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_2")
