@@ -1,45 +1,51 @@
 require 'cosmos'
 require 'cosmos/script'
-require 'mission_lib.rb'
+require 'generic_mag_lib.rb'
 
-class MAG_LPT < Cosmos::Test
+class GENERIC_MAG_Functional_Test < Cosmos::Test
   def setup
-    
+    safe_generic_mag()
   end
 
-  def test_lpt
-    start("tests/generic_mag_lpt_test.rb")
+  def test_application
+      start("tests/generic_mag_app_test.rb")
+  end
+
+  def test_device
+    start("tests/generic_mag_device_test.rb")
   end
 
   def teardown
-
+    safe_generic_mag()
   end
 end
 
-class MAG_CPT < Cosmos::Test
-  def setup
-      
+class GENERIC_MAG_Automated_Scenario_Test < Cosmos::Test
+  def setup 
+    safe_generic_mag()
   end
 
-  def test_cpt
-    start("tests/generic_mag_cpt_test.rb")
+  def test_AST
+      start("tests/generic_mag_ast_test.rb")
   end
 
   def teardown
-
+    safe_generic_mag()
   end
 end
 
 class Generic_mag_Test < Cosmos::TestSuite
   def initialize
       super()
-      add_test('MAG_CPT')
-      add_test('MAG_LPT')
+      add_test('GENERIC_MAG_Functional_Test')
+      add_test('GENERIC_MAG_Automated_Scenario_Test')
   end
 
   def setup
+    safe_generic_mag()
   end
   
   def teardown
+    safe_generic_mag()
   end
 end
