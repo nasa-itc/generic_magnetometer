@@ -259,6 +259,9 @@ void GENERIC_MAG_ProcessGroundCommand(void)
             */
             if (GENERIC_MAG_VerifyCmdLength(GENERIC_MAG_AppData.MsgPtr, sizeof(GENERIC_MAG_NoArgs_cmd_t)) == OS_SUCCESS)
             {
+                /* Increment the command counter upon receipt of an invalid command */
+                GENERIC_MAG_AppData.HkTelemetryPkt.CommandCount++;
+
                 /* Second, send EVS event on successful receipt ground commands*/
                 CFE_EVS_SendEvent(GENERIC_MAG_CMD_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
                                   "GENERIC_MAG: NOOP command received");
@@ -418,6 +421,9 @@ void GENERIC_MAG_Enable(void)
     /* Check that device is disabled */
     if (GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_MAG_DEVICE_DISABLED)
     {
+        /* Increment the command counter upon receipt of an invalid command */
+        GENERIC_MAG_AppData.HkTelemetryPkt.CommandCount++;
+
         /* Open device specific protocols */
         status = spi_init_dev(&GENERIC_MAG_AppData.Generic_magSpi);
         if (status == OS_SUCCESS)
@@ -435,7 +441,10 @@ void GENERIC_MAG_Enable(void)
     }
     else
     {
-        GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
+        /* Increment command error count */
+        GENERIC_MAG_AppData.HkTelemetryPkt.CommandErrorCount++;
+
+        /* Send command event failure to the console */
         CFE_EVS_SendEvent(GENERIC_MAG_ENABLE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "GENERIC_MAG: Device enable failed, already enabled");
     }
@@ -452,6 +461,9 @@ void GENERIC_MAG_Disable(void)
     /* Check that device is enabled */
     if (GENERIC_MAG_AppData.HkTelemetryPkt.DeviceEnabled == GENERIC_MAG_DEVICE_ENABLED)
     {
+        /* Increment command success counter */
+        GENERIC_MAG_AppData.HkTelemetryPkt.CommandCount++;
+
         /* Open device specific protocols */
         status = spi_close_device(&GENERIC_MAG_AppData.Generic_magSpi);
         if (status == OS_SUCCESS)
@@ -470,7 +482,10 @@ void GENERIC_MAG_Disable(void)
     }
     else
     {
-        GENERIC_MAG_AppData.HkTelemetryPkt.DeviceErrorCount++;
+        /* Increment command error count */
+        GENERIC_MAG_AppData.HkTelemetryPkt.CommandErrorCount++;
+
+        /* Send command event failure to the console */
         CFE_EVS_SendEvent(GENERIC_MAG_DISABLE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "GENERIC_MAG: Device disable failed, already disabled");
     }
@@ -488,12 +503,7 @@ int32 GENERIC_MAG_VerifyCmdLength(CFE_MSG_Message_t *msg, uint16 expected_length
     size_t            actual_length = 0;
 
     CFE_MSG_GetSize(msg, &actual_length);
-    if (expected_length == actual_length)
-    {
-        /* Increment the command counter upon receipt of an invalid command */
-        GENERIC_MAG_AppData.HkTelemetryPkt.CommandCount++;
-    }
-    else
+    if (expected_length != actual_length)
     {
         CFE_MSG_GetMsgId(msg, &msg_id);
         CFE_MSG_GetFcnCode(msg, &cmd_code);

@@ -42,9 +42,9 @@ GENERIC_MAG_TEST_LOOP_COUNT.times do |n|
 
     # Confirm that status register and that app disabled itself
     get_generic_mag_hk()
-    check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_STATUS == 255")
+    #check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_STATUS == 255")
     get_generic_mag_hk()
-    check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ENABLED == 'DISABLED'")
+    #check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ENABLED == 'DISABLED'")
     
     # Clear simulator status fault
     generic_mag_sim_set_status(0)

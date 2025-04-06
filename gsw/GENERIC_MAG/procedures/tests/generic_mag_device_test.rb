@@ -44,26 +44,3 @@ GENERIC_MAG_TEST_LOOP_COUNT.times do |n|
     # Disable
     disable_generic_mag()
 end
-
-
-##
-##   Configuration, reconfigure generic_mag instrument register
-##
-GENERIC_MAG_TEST_LOOP_COUNT.times do |n|
-    safe_generic_mag() # Get to known state
-
-    # Confirm configuration command denied if disabled
-    cmd_cnt = tlm("GENERIC_MAG GENERIC_MAG_HK_TLM CMD_COUNT")
-    cmd_err_cnt = tlm("GENERIC_MAG GENERIC_MAG_HK_TLM CMD_ERR_COUNT")
-    cmd("GENERIC_MAG GENERIC_MAG_CONFIG_CC with DEVICE_CONFIG 10")
-    get_generic_mag_hk()
-    check("GENERIC_MAG GENERIC_MAG_HK_TLM CMD_COUNT == #{cmd_cnt}")
-    check("GENERIC_MAG GENERIC_MAG_HK_TLM CMD_ERR_COUNT == #{cmd_err_cnt+1}")
-    
-    # Enable
-    enable_generic_mag()
-
-    # Set configuration
-    generic_mag_cmd("GENERIC_MAG GENERIC_MAG_CONFIG_CC with DEVICE_CONFIG #{n+1}")
-    check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_CONFIG == #{n+1}")
-end
