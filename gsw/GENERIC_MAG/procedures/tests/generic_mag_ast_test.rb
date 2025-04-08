@@ -28,24 +28,3 @@ GENERIC_MAG_TEST_LOOP_COUNT.times do |n|
     generic_mag_sim_enable()
     confirm_generic_mag_data_loop()
 end
-
-
-##
-## Hardware status reporting fault
-##
-GENERIC_MAG_TEST_LOOP_COUNT.times do |n|
-    # Prepare
-    generic_mag_prepare_ast()
-
-    # Add a fault to status in the simulator
-    generic_mag_sim_set_status(255)
-
-    # Confirm that status register and that app disabled itself
-    get_generic_mag_hk()
-    #check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_STATUS == 255")
-    get_generic_mag_hk()
-    #check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ENABLED == 'DISABLED'")
-    
-    # Clear simulator status fault
-    generic_mag_sim_set_status(0)
-end
