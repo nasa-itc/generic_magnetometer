@@ -9,6 +9,7 @@ GENERIC_MAG_CMD_SLEEP = 0.25
 GENERIC_MAG_RESPONSE_TIMEOUT = 5
 GENERIC_MAG_TEST_LOOP_COUNT = 1
 GENERIC_MAG_DEVICE_LOOP_COUNT = 5
+GENERIC_MAG_DEVICE_NT_DIFFERENCE = 1000
 
 #
 # Functions
@@ -76,21 +77,19 @@ def confirm_generic_mag_data()
     dev_cmd_cnt = tlm("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_COUNT")
     dev_cmd_err_cnt = tlm("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_ERR_COUNT")
     
-    get_generic_mag_data()
+    
     # Note these checks assume default simulator configuration
-    diff = 500
+    truth_42_bvb0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_X_NT")
+    get_generic_mag_data()
+    check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_X", truth_42_bvb0, GENERIC_MAG_DEVICE_NT_DIFFERENCE)
 
-    truth_42_bvb0 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_0")
-    bvb_adjusted_0 = truth_42_bvb0*1000000000
-    wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_X",bvb_adjusted_0, diff, 15)
+    truth_42_bvb1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_Y_NT")
+    get_generic_mag_data()
+    check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Y", truth_42_bvb1, GENERIC_MAG_DEVICE_NT_DIFFERENCE)
 
-    truth_42_bvb1 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_1")
-    bvb_adjusted_1 = truth_42_bvb1*1000000000
-    wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Y",bvb_adjusted_1, diff, 15)
-
-    truth_42_bvb2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_2")
-    bvb_adjusted_2 = truth_42_bvb2*1000000000
-    wait_check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Z",bvb_adjusted_2, diff, 15)
+    truth_42_bvb2 = tlm("SIM_42_TRUTH SIM_42_TRUTH_DATA BVB_Z_NT")
+    get_generic_mag_data()
+    check_tolerance("GENERIC_MAG GENERIC_MAG_DATA_TLM RAW_MAG_Z", truth_42_bvb2, GENERIC_MAG_DEVICE_NT_DIFFERENCE)
 
     get_generic_mag_hk()
     check("GENERIC_MAG GENERIC_MAG_HK_TLM DEVICE_COUNT >= #{dev_cmd_cnt}")
