@@ -5,14 +5,50 @@ module Components {
         # One async command/port is required for active components
         # This should be overridden by the developers with a useful command/port
 
+        @ Component Enable State
+        enum ActiveState {
+            DISABLED @< DISABLED
+            ENABLED @< ENABLED
+        }
+
+        @ Enable Command
+        async command ENABLE()
+
+        @ Disable Command
+        async command DISABLE()
+
+        @ NOOP Command
+        async command NOOP()
+
+        @ Request HouseKeeping Command
+        async command REQUEST_HOUSEKEEPING()
+
+        @ Reset Counters Command
+        async command RESET_COUNTERS()
+
         @ Command to issue noop
         async command REQUEST_DATA(
         )
 
         @ Greeting event with maximum greeting length of 30 characters
         event TELEM(
-            log_info: string size 30 @< 
+            log_info: string size 40 @< 
         ) severity activity high format "Generic_mag: {}"
+
+        @ Command Count
+        telemetry CommandCount: U32
+
+        @ Command Error Count
+        telemetry CommandErrorCount: U32
+
+        @ Device Count
+        telemetry DeviceCount: U32
+
+        @ Device Error Count
+        telemetry DeviceErrorCount: U32
+
+        @ Device Enabled
+        telemetry DeviceEnabled: ActiveState
 
          @ Magnetic Intensity X-Axis Parameter
         telemetry MagneticIntensityX: I32
