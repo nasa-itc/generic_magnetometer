@@ -5,6 +5,12 @@ module Components {
         # One async command/port is required for active components
         # This should be overridden by the developers with a useful command/port
 
+        @ MAG output port
+        output port MAGout: MagDataPort
+
+        @ Periodic Data MAG
+        async input port updateData: Svc.Sched
+
         @ Command to issue noop
         async command REQUEST_DATA(
         )

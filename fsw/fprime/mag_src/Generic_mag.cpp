@@ -114,4 +114,17 @@ namespace Components {
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
   }
 
+  void Generic_mag :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+  {
+    int32_t status = OS_SUCCESS;
+    
+    status = GENERIC_MAG_RequestData(&Generic_magSpi, &Generic_magData);
+
+    this->tlmWrite_MagneticIntensityX(Generic_magData.MagneticIntensityX);
+    this->tlmWrite_MagneticIntensityY(Generic_magData.MagneticIntensityY);
+    this->tlmWrite_MagneticIntensityZ(Generic_magData.MagneticIntensityZ);
+
+    this->MAGout_out(0, Generic_magData.MagneticIntensityX, Generic_magData.MagneticIntensityY, Generic_magData.MagneticIntensityZ);
+  }
+
 }
