@@ -62,29 +62,16 @@ namespace Components {
 
     nos_destroy_link();
 
-    OS_printf("Cleanly exiting generic_mag application...\n\n"); 
   }
 
   // ----------------------------------------------------------------------
   // Handler implementations for commands
   // ----------------------------------------------------------------------
 
-  // void Generic_mag ::
-  //   TODO_cmdHandler(
-  //       FwOpcodeType opCode,
-  //       U32 cmdSeq
-  //   )
-  // {
-  //   // TODO
-  //   this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
-  // }
-
   void Generic_mag :: NOOP_cmdHandler(FwOpcodeType opCode, U32 cmdSeq){
     HkTelemetryPkt.CommandCount++;
 
     this->log_ACTIVITY_HI_TELEM("NOOP command success!");
-    OS_printf("NOOP command successful!\n");
-
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
     this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
@@ -109,24 +96,18 @@ namespace Components {
       {
         HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_ENABLED;
         HkTelemetryPkt.DeviceCount++;
-
         this->log_ACTIVITY_HI_TELEM("Enable command success!");
-        OS_printf("Enable command successful!\n");
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-
         this->log_ACTIVITY_HI_TELEM("Enable command failed to init SPI!");
-        OS_printf("Enable command failed to init SPI!\n");
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-
       this->log_ACTIVITY_HI_TELEM("Enable failed, already Enabled!");
-      OS_printf("Enable failed, already Enabled!\n");
     }
 
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
@@ -150,24 +131,18 @@ namespace Components {
       {
         HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_DISABLED;
         HkTelemetryPkt.DeviceCount++;
-
         this->log_ACTIVITY_HI_TELEM("Disable command success!");
-        OS_printf("Disable command successful!\n");
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
-        
         this->log_ACTIVITY_HI_TELEM("Disable command failed to close SPI!");
-        OS_printf("Disable command failed to close SPI!\n");
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
-
       this->log_ACTIVITY_HI_TELEM("Disable failed, already Disabled!");
-      OS_printf("Disable failed, already Disabled!\n");
     }
 
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
@@ -195,12 +170,10 @@ namespace Components {
       this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
 
       this->log_ACTIVITY_HI_TELEM("Requested Housekeeping!");
-      OS_printf("Requested Housekeeping!\n");
     }
     else
     {
-      this->log_ACTIVITY_HI_TELEM("Device Disabled!");
-      OS_printf("Device Disabled!\n");
+      this->log_ACTIVITY_HI_TELEM("HK Failed, Device Disabled!");
     }   
 
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
@@ -219,20 +192,17 @@ namespace Components {
       {
         HkTelemetryPkt.DeviceCount++;
         this->log_ACTIVITY_HI_TELEM("RequestData command success\n");
-        OS_printf("RequestData command successful!\n");
       }
       else
       {
         HkTelemetryPkt.DeviceErrorCount++;
         this->log_ACTIVITY_HI_TELEM("RequestData command failed!\n");
-        OS_printf("RequestData command failed!\n");
       }
     }
     else
     {
       HkTelemetryPkt.CommandErrorCount++;
       this->log_ACTIVITY_HI_TELEM("RequestData command failed, device disabled!\n");
-      OS_printf("RequestData command failed, device disabled!\n");
     }
     
     this->tlmWrite_MagneticIntensityX(Generic_magData.MagneticIntensityX);
@@ -255,7 +225,6 @@ namespace Components {
     HkTelemetryPkt.DeviceErrorCount = 0;
 
     this->log_ACTIVITY_HI_TELEM("Reset Counters command successful!");
-    OS_printf("Reset Counters command successful!\n");
     this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
     this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
     this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
