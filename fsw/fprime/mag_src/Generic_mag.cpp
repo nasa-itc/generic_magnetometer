@@ -26,7 +26,7 @@ namespace Components {
     HkTelemetryPkt.CommandErrorCount = 0;
     HkTelemetryPkt.DeviceCount = 0;
     HkTelemetryPkt.DeviceErrorCount = 0;
-    HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_DISABLED;
+    HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_ENABLED;
 
     /* Open device specific protocols */
     Generic_magSpi.deviceString = GENERIC_MAG_CFG_STRING;
@@ -47,7 +47,7 @@ namespace Components {
         status = OS_ERROR;
     }
 
-    status = spi_close_device(&Generic_magSpi);
+    // status = spi_close_device(&Generic_magSpi);
 
 
     this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
