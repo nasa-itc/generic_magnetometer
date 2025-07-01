@@ -49,7 +49,6 @@ namespace Components {
 
     // status = spi_close_device(&Generic_magSpi);
 
-
     this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
   }
 
@@ -223,10 +222,6 @@ namespace Components {
     int32_t status = OS_SUCCESS;
     
     status = GENERIC_MAG_RequestData(&Generic_magSpi, &Generic_magData);
-
-    this->tlmWrite_MagneticIntensityX(Generic_magData.MagneticIntensityX);
-    this->tlmWrite_MagneticIntensityY(Generic_magData.MagneticIntensityY);
-    this->tlmWrite_MagneticIntensityZ(Generic_magData.MagneticIntensityZ);
 
     this->MAGout_out(0, Generic_magData.MagneticIntensityX, Generic_magData.MagneticIntensityY, Generic_magData.MagneticIntensityZ);
   }
