@@ -225,6 +225,17 @@ namespace Components {
 
     this->MAGout_out(0, Generic_magData.MagneticIntensityX, Generic_magData.MagneticIntensityY, Generic_magData.MagneticIntensityZ);
   }
+
+  void Generic_mag :: updateTlm_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+  {
+    this->tlmWrite_MagneticIntensityX(Generic_magData.MagneticIntensityX);
+    this->tlmWrite_MagneticIntensityY(Generic_magData.MagneticIntensityY);
+    this->tlmWrite_MagneticIntensityZ(Generic_magData.MagneticIntensityZ);
+    this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
+    this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
+    this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
+    this->tlmWrite_DeviceErrorCount(HkTelemetryPkt.DeviceErrorCount);
+  }
   
   void Generic_mag :: RESET_COUNTERS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq){
     HkTelemetryPkt.CommandCount = 0;
