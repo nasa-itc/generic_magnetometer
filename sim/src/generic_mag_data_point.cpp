@@ -24,7 +24,7 @@ namespace Nos3
             ** 42 data stream defined in `42/Source/IPC/SimWriteToSocket.c`
             */
            std::string key0; // SC[N].AC.MAG[M].Field
-           key0.append("SC[").append(std::to_string(_sc)).append("].AC.MAG");
+           key0.append("SC[").append(std::to_string(_sc)).append("].MAG");
            std::string key1(key0), key2(key0);
            key0.append("[0].Field");
            key1.append("[1].Field");

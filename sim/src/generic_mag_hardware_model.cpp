@@ -120,6 +120,7 @@ namespace Nos3
     {
         boost::shared_ptr<Generic_magDataPoint> data_point = boost::dynamic_pointer_cast<Generic_magDataPoint>(_generic_mag_dp->get_data_point());
         std::vector<float> magValues = data_point->getValues();
+        sim_logger->debug("Generic_magHardwareModel::prepare_generic_mag_data_from_42:  Data point=%s", data_point->to_string().c_str());
 
         /* Prepare data size */
         out_data.clear();
