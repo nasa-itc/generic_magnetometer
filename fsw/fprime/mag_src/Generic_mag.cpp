@@ -223,7 +223,15 @@ namespace Components {
     
     status = GENERIC_MAG_RequestData(&Generic_magSpi, &Generic_magData);
 
-    this->MAGout_out(0, Generic_magData.MagneticIntensityX, Generic_magData.MagneticIntensityY, Generic_magData.MagneticIntensityZ);
+    if(status == OS_SUCCESS)
+    {
+      HkTelemetryPkt.DeviceCount++;
+      this->MAGout_out(0, Generic_magData.MagneticIntensityX, Generic_magData.MagneticIntensityY, Generic_magData.MagneticIntensityZ);
+    }
+    else
+    {
+      HkTelemetryPkt.DeviceErrorCount++;
+    }
   }
 
   void Generic_mag :: updateTlm_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
