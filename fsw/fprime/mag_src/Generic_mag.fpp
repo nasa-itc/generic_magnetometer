@@ -5,6 +5,15 @@ module Components {
         # One async command/port is required for active components
         # This should be overridden by the developers with a useful command/port
 
+        @ MAG output port
+        output port MAGout: MagDataPort
+
+        @ Periodic Data MAG
+        async input port updateData: Svc.Sched
+
+        @ Periodic Tlm MAG
+        async input port updateTlm: Svc.Sched
+        
         @ Component Enable State
         enum ActiveState {
             DISABLED @< DISABLED

@@ -26,7 +26,7 @@ namespace Components {
     HkTelemetryPkt.CommandErrorCount = 0;
     HkTelemetryPkt.DeviceCount = 0;
     HkTelemetryPkt.DeviceErrorCount = 0;
-    HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_DISABLED;
+    HkTelemetryPkt.DeviceEnabled = GENERIC_MAG_DEVICE_ENABLED;
 
     /* Open device specific protocols */
     Generic_magSpi.deviceString = GENERIC_MAG_CFG_STRING;
@@ -47,8 +47,7 @@ namespace Components {
         status = OS_ERROR;
     }
 
-    status = spi_close_device(&Generic_magSpi);
-
+    // status = spi_close_device(&Generic_magSpi);
 
     this->tlmWrite_DeviceEnabled(get_active_state(HkTelemetryPkt.DeviceEnabled));
   }
@@ -218,6 +217,34 @@ namespace Components {
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
   }
 
+  void Generic_mag :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+  {
+    int32_t status = OS_SUCCESS;
+    
+    status = GENERIC_MAG_RequestData(&Generic_magSpi, &Generic_magData);
+
+    if(status == OS_SUCCESS)
+    {
+      HkTelemetryPkt.DeviceCount++;
+      this->MAGout_out(0, Generic_magData.MagneticIntensityX, Generic_magData.MagneticIntensityY, Generic_magData.MagneticIntensityZ);
+    }
+    else
+    {
+      HkTelemetryPkt.DeviceErrorCount++;
+    }
+  }
+
+  void Generic_mag :: updateTlm_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+  {
+    this->tlmWrite_MagneticIntensityX(Generic_magData.MagneticIntensityX);
+    this->tlmWrite_MagneticIntensityY(Generic_magData.MagneticIntensityY);
+    this->tlmWrite_MagneticIntensityZ(Generic_magData.MagneticIntensityZ);
+    this->tlmWrite_CommandCount(HkTelemetryPkt.CommandCount);
+    this->tlmWrite_CommandErrorCount(HkTelemetryPkt.CommandErrorCount);
+    this->tlmWrite_DeviceCount(HkTelemetryPkt.DeviceCount);
+    this->tlmWrite_DeviceErrorCount(HkTelemetryPkt.DeviceErrorCount);
+  }
+  
   void Generic_mag :: RESET_COUNTERS_cmdHandler(FwOpcodeType opCode, U32 cmdSeq){
     HkTelemetryPkt.CommandCount = 0;
     HkTelemetryPkt.CommandErrorCount = 0;
