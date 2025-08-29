@@ -13,6 +13,8 @@ namespace Nos3
         /* Constructors */
         Generic_magDataPoint(double count);
         Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp);
+        Generic_magDataPoint(double mag_x, double mag_y, double mag_z);
+        ~Generic_magDataPoint(void) {};
 
         /* Accessors */
         /* Provide the hardware model a way to get the specific data out of the data point */
@@ -23,7 +25,6 @@ namespace Nos3
         /* Disallow these */
         Generic_magDataPoint(void) {};
         Generic_magDataPoint(const Generic_magDataPoint&) {};
-        ~Generic_magDataPoint(void) {};
 
         // Private mutators
         inline void parse_data_point(void) const {if (_not_parsed) do_parsing();}
