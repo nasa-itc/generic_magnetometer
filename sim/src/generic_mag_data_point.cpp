@@ -5,7 +5,7 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
-    Generic_magDataPoint::Generic_magDataPoint(double mag_x, double mag_y, double mag_z)
+    Generic_magDataPoint::Generic_magDataPoint(double mag_x, double mag_y, double mag_z) : _not_parsed(false)
     {
         std::vector<float> axes(3, 0.0);
         _generic_mag_data = axes;
