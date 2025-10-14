@@ -53,7 +53,7 @@ namespace Components {
       //! Destroy Generic_mag object
       ~Generic_mag();
 
-    PRIVATE:
+    private:
 
       // ----------------------------------------------------------------------
       // Handler implementations for commands

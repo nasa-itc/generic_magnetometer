@@ -5,7 +5,8 @@
 // ======================================================================
 
 #include "mag_src/Generic_mag.hpp"
-#include "FpConfig.hpp"
+// #include "FpConfig.hpp"
+#include "Fw/FPrimeBasicTypes.hpp"
 #include <Fw/Log/LogString.hpp>
 
 
