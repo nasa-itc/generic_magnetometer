@@ -231,7 +231,7 @@ namespace Components {
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
   }
 
-  void Generic_mag :: updateData_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+  void Generic_mag :: updateData_handler(const FwIndexType portNum, U32 context)
   {
     int32_t status = OS_SUCCESS;
     
@@ -248,7 +248,7 @@ namespace Components {
     }
   }
 
-  void Generic_mag :: updateTlm_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context)
+  void Generic_mag :: updateTlm_handler(const FwIndexType portNum, U32 context)
   {
     this->tlmWrite_MagneticIntensityX(Generic_magData.MagneticIntensityX);
     this->tlmWrite_MagneticIntensityY(Generic_magData.MagneticIntensityY);
