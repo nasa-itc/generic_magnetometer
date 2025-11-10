@@ -53,7 +53,7 @@ namespace Components {
       //! Destroy Generic_mag object
       ~Generic_mag();
 
-    PRIVATE:
+    private:
 
       // ----------------------------------------------------------------------
       // Handler implementations for commands
@@ -93,13 +93,13 @@ namespace Components {
       ) override;
 
       void updateData_handler(
-        const NATIVE_INT_TYPE portNum, //!< The port number
-        NATIVE_UINT_TYPE context //!< The call order
+        const FwIndexType portNum, //!< The port number
+        U32 context //!< The call order
       ) override;
 
       void updateTlm_handler(
-        const NATIVE_INT_TYPE portNum, //!< The port number
-        NATIVE_UINT_TYPE context //!< The call order
+        const FwIndexType portNum, //!< The port number
+        U32 context //!< The call order
       ) override;
 
       void REQUEST_HOUSEKEEPING_cmdHandler(
