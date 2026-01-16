@@ -5,6 +5,15 @@ namespace Nos3
 {
     extern ItcLogger::Logger *sim_logger;
 
+    Generic_magDataPoint::Generic_magDataPoint(double mag_x, double mag_y, double mag_z) : _not_parsed(false)
+    {
+        std::vector<float> axes(3, 0.0);
+        _generic_mag_data = axes;
+        _generic_mag_data[0] = mag_x;
+        _generic_mag_data[1] = mag_y;
+        _generic_mag_data[2] = mag_z;
+    }
+
     Generic_magDataPoint::Generic_magDataPoint(int16_t spacecraft, const boost::shared_ptr<Sim42DataPoint> dp) : _dp(*dp), _sc(spacecraft), _not_parsed(true)
     {
         sim_logger->trace("Generic_magDataPoint::Generic_magDataPoint:  42 Constructor executed");

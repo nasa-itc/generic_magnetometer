@@ -13,6 +13,7 @@ set(generic_mag_sim_src
     src/generic_mag_42_data_provider.cpp
     src/generic_mag_data_provider.cpp
     src/generic_mag_data_point.cpp
+    src/generic_mag_shmem_data_provider.cpp
 )
 
 # For Code::Blocks and other IDEs
