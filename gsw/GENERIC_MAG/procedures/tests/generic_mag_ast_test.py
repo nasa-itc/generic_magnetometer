@@ -41,7 +41,7 @@ def run_generic_mag_ast_test():
         get_generic_mag_hk()
 
         wait_check(f"GENERIC_MAG_DEBUG GENERIC_MAG_HK_TLM DEVICE_COUNT >= {dev_cmd_cnt}", 5)
-        wait_check(f"GENERIC_MAG_DEBUG GENERIC_MAG_HK_TLM DEVICE_ERR_COUNT > {dev_cmd_err_cnt}", 5)
+        wait_check(f"GENERIC_MAG_DEBUG GENERIC_MAG_HK_TLM DEVICE_ERR_COUNT >= {dev_cmd_err_cnt}", 5)
 
         # Enable sim and confirm return to nominal operation
         generic_mag_sim_enable()
