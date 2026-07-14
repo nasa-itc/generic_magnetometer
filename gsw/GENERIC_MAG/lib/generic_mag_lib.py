@@ -16,12 +16,12 @@ GENERIC_MAG_DEVICE_NT_DIFFERENCE = 1000
 #
 def get_generic_mag_hk():
     cmd("GENERIC_MAG_DEBUG GENERIC_MAG_REQ_HK")
-    wait_check_packet("GENERIC_MAG", "GENERIC_MAG_HK_TLM", 1, GENERIC_MAG_RESPONSE_TIMEOUT)
+    wait_check_packet("GENERIC_MAG_DEBUG", "GENERIC_MAG_HK_TLM", 1, GENERIC_MAG_RESPONSE_TIMEOUT)
     time.sleep(GENERIC_MAG_CMD_SLEEP)
 
 def get_generic_mag_data():
     cmd("GENERIC_MAG_DEBUG GENERIC_MAG_REQ_DATA")
-    wait_check_packet("GENERIC_MAG", "GENERIC_MAG_DATA_TLM", 1, GENERIC_MAG_RESPONSE_TIMEOUT)
+    wait_check_packet("GENERIC_MAG_DEBUG", "GENERIC_MAG_DATA_TLM", 1, GENERIC_MAG_RESPONSE_TIMEOUT)
     time.sleep(GENERIC_MAG_CMD_SLEEP)
 
 def generic_mag_cmd(command_string):
