@@ -34,7 +34,12 @@ def run_generic_mag_ast_test():
         dev_cmd_err_cnt = tlm("GENERIC_MAG_DEBUG GENERIC_MAG_HK_TLM DEVICE_ERR_COUNT")
         generic_mag_sim_disable()
         time.sleep(1)
+
         cmd("GENERIC_MAG_DEBUG GENERIC_MAG_REQ_DATA")
+        time.sleep(1)
+
+        get_generic_mag_hk()
+
         wait_check(f"GENERIC_MAG_DEBUG GENERIC_MAG_HK_TLM DEVICE_COUNT >= {dev_cmd_cnt}", 5)
         wait_check(f"GENERIC_MAG_DEBUG GENERIC_MAG_HK_TLM DEVICE_ERR_COUNT > {dev_cmd_err_cnt}", 5)
 
